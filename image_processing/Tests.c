@@ -10,6 +10,7 @@
 #include "Drawing.h"
 #include "Component.h"
 #include <string.h>
+#include "ArrayConversion.h"
 
 void SaveComponentToBMP(SDL_Surface *img, struct Component *c, char *name)
 {
@@ -52,6 +53,26 @@ void SaveComponentToBMP(SDL_Surface *img, struct Component *c, char *name)
 	free(tmp);
 }
 
+int main(int argc, char *argv[])
+{
+	if (argc != 2)
+                return 1;
+
+        init_sdl();
+
+
+        SDL_Surface *img = load_image(argv[1]);
+
+	double *imgArr = BW_BitmapToArray(img);
+
+	if (!imgArr)
+		errx(1, ":/");
+
+
+	return 0;
+}
+
+/*
 int main(int argc, char *argv[])
 {
 	if (argc != 2)
@@ -133,3 +154,4 @@ int main(int argc, char *argv[])
 
 	return 0;
 }
+*/
