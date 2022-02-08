@@ -36,7 +36,7 @@ void HoughTransform(SDL_Surface *edge_image, SDL_Surface *src, int num_thetas, i
 		rhos[i] = step + i;
 	}
 
-	printf("%f    %f\n", rhos[0], rhos[2 * d]);
+//	printf("%f    %f\n", rhos[0], rhos[2 * d]);
 
 	// init accumulator
 	int accumulator[2 * d + 1][181];
@@ -156,7 +156,7 @@ void HoughTransform(SDL_Surface *edge_image, SDL_Surface *src, int num_thetas, i
 				x2 = (int) (x0 - 1000 * (-b));
 				y2 = (int) (y0 - 1000 * (a));
 
-				DrawLine(src, y1, x1, y2, x2, 0.03 * src -> w, color);
+				DrawLine(src, y1, x1, y2, x2, 1, color);
 			}
 		}
 	}

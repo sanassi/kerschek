@@ -60,12 +60,12 @@ void SobelEdgeDetection(SDL_Surface *in, SDL_Surface *out, double threshold)
 		
 			if (!(g_px > threshold))
 			{
-				pixel = SDL_MapRGB(in -> format, 255, 255, 255);
+				pixel = SDL_MapRGB(in -> format, 0, 0, 0);
 				put_pixel(out, j, i, pixel);
 			}
 			else
 			{
-				pixel = SDL_MapRGB(in -> format, 0, 0, 0);
+				pixel = SDL_MapRGB(in -> format, 255, 255, 255);
 				put_pixel(out, j, i, pixel);
 			}
 		}

@@ -1,6 +1,7 @@
 #ifndef COMPONENT_H_
 #define COMPONENT_H_
 
+
 #include <stdio.h>
 #include <stdlib.h>
 #include "Sobel.h"
@@ -12,13 +13,16 @@
 #include "Morph.h"
 #include "Drawing.h"
 #include "Vector.h"
-
+#include "Hough.h"
+#include <string.h>
 
 struct Component
 {
 	int box_origin_x, box_origin_y; // bounding box coordinates
 
 	int height, width;
+
+	int id;
 
 
 	// extreme points
@@ -33,6 +37,11 @@ struct Component
 
 struct Component *GetComponent(SDL_Surface *img, int x, int y);
 
+void SaveComponentToBMP(SDL_Surface *img, struct Component *c, char *name);
+
 void free_component(struct Component *c);
+
+struct Component *GetComponents(SDL_Surface *img, int *len);
+
 
 #endif
