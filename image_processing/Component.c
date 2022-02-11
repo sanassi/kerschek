@@ -1,5 +1,6 @@
 #include "Component.h"
 
+//TODO : change way components saved, so i dont use the src img
 void SaveComponentToBMP(SDL_Surface *img, struct Component *c, char *name)
 {
 	Uint32 pixel;
@@ -177,20 +178,29 @@ struct Component *GetComponents(SDL_Surface *img, int *len)
 {
 	init_sdl();
 	
+	//pre processing----------
 	BoxBlur(img);
+	BoxBlur(img);
+	BoxBlur(img);
+
 	Grayscale(img);
 	Binarize(img);
+
+	//Erosion(img);
+
+	Dilation(img);
+	Dilation(img);
+	//-------------------------	
+
 	SDL_Surface *img_copy = copy_image(img);
-	SDL_Surface *img_copy_2 = copy_image(img);// copy of img to see the components in image
-
-	SDL_Surface *tmp = SDL_CreateRGBSurface(SDL_HWSURFACE, img -> w, img -> h, 32, 255, 255, 255, 0);
-
 	Uint32 pixel;
 	Uint8 r, g, b;
 
-	struct Component *components = malloc(1000 * sizeof(struct Component)); // array of components : TODO : find a way to get adjustable size
+	int MAX_SIZE = 100;
 
-	int a = 0; // index to loop over components array
+	struct Component *components = malloc(MAX_SIZE * sizeof(struct Component)); // array of components : TODO : find a way to get adjustable size
+
+	int count = 0; // index to loop over components array
 
 	Uint32 color = SDL_MapRGB(img -> format, 0, 255, 0);
 
@@ -201,55 +211,34 @@ struct Component *GetComponents(SDL_Surface *img, int *len)
 			pixel = get_pixel(img, i, j);
 			SDL_GetRGB(pixel, img -> format, &r, &g, &b);
 
-			if (r == 0 && a < 1000)
+			if (r == 0 && count < MAX_SIZE)
 			{
 				struct Component *c = GetComponent(img, i, j);
 
-				if (c -> points -> size > 100)
+				// check component size and shape
+				if (c -> points -> size > 100 && c -> height < img -> h < 2 && c -> width < img -> w / 2 && c -> height > 50 && c -> width > 10)
 				{
-					
 		                        //bounding box
 					if (((float)(c -> width) / ((float) c -> height)) < 1) // aspect ratio
 					{
-						components[a] = *c;
+						components[count] = *c;
 
 						DrawRectangle(img_copy, c -> box_origin_y, c -> box_origin_x, c -> height,c ->  width, 4, color);
-
-						c -> id = a;
-						for (int x = 0; x < (int) c -> points -> size; x += 2)
-						{
-							Uint8 whitePixel = SDL_MapRGB(img -> format, 255, 255, 255);
-							put_pixel(tmp, *(c -> points -> data + x), *(c -> points -> data + x + 1), whitePixel);
-						}
-
-						// save components in folder
-					
-						/*
-						char name[10];
-						sprintf(name, "%i", a);
-						char *res_path;
-						int size = asprintf(&res_path,"%s%s%s", "components/", name, ".bmp");
-						if (size == -1)
-							errx(1, "asprintf()");
-						SaveComponentToBMP(img_copy_2, c, res_path);
-						*/
-						a++;
+						
+						c -> id = count;
+						count++;
 					}
 				}
 			}
 		}
 	}
 
-	SDL_SaveBMP(tmp, "components.bmp");
 	SDL_SaveBMP(img_copy, "res.bmp");
 	SDL_FreeSurface(img_copy);
-	SDL_FreeSurface(tmp);
-	SDL_FreeSurface(img_copy_2);
 
-	*len = a;
+	*len = count;
 
 	return components;
-
 }
 
 void free_component(struct Component *c)

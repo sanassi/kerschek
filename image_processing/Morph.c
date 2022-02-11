@@ -29,7 +29,6 @@ void Erosion(SDL_Surface *img)
 					{
 						if ((i + x >= 0) && (i + x < (img -> w)) && (j + y >= 0) && (j + y < (img -> h)))
 						{
-							printf("made it here");
 							pixel = get_pixel(img_copy, i + x, j + y);
 							SDL_GetRGB(pixel, img_copy->format, &r, &g, &b);
 
@@ -44,7 +43,6 @@ void Erosion(SDL_Surface *img)
 
 				if (count > 1)
 				{
-					printf("ok");
 					pixel = SDL_MapRGB(img -> format, 255, 255, 255);
 					put_pixel(img, i, j, pixel);
 				}
@@ -81,7 +79,6 @@ void Dilation(SDL_Surface *img)
 					{
 						if ((i + x >= 0) && (i + x < (img -> w)) && (j + y >= 0) && (j + y < (img -> h)))
 						{
-							printf("made it here");
 
 							pixel = get_pixel(img_copy, i + x, j + y);
 							SDL_GetRGB(pixel, img_copy->format, &r, &g, &b);
