@@ -10,10 +10,12 @@ SRC =  Tests.c PreProcessing.c SdlHelper/SdlHelperFunctions.c Sobel.c Blur.c Res
 OBJ = $(SRC:.c=.o)
 DEP = $(SRC:.c=.d)
 
-Tests :  Tests.o PreProcessing.c SdlHelper/SdlHelperFunctions.c Sobel.c Blur.c Rescaling.c Floodfill.c Vector.c Hough.c Drawing.c Morph.c Component.c
+Tests :  Tests.o PreProcessing.c SdlHelper/SdlHelperFunctions.c Sobel.c Blur.c Rescaling.c Floodfill.c Vector.c Hough.c Drawing.c Morph.c Component.c ArrayConversion.c
 
 TestVector : TestVector.o Vector.c
 
+TestMorph : TestMorph.o PreProcessing.c SdlHelper/SdlHelperFunctions.c Sobel.c Blur.c Rescaling.c Floodfill.c Vector.c Hough.c Drawing.c Morph.c Component.c ArrayConversion.c
+
 
 clean :
-	rm *.o *.d Tests TestVector
+	rm *.o *.d Tests TestVector TestMorph
