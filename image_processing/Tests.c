@@ -14,112 +14,63 @@
 #include <math.h>
 #include "Vector.h"
 #include "Morph.h"
+#include <unistd.h>
+#include <sys/wait.h>
 
-void SetWhiteBackground(SDL_Surface *img)
+void PreProcess(SDL_Surface *img, int nbBlur, int nbErode, int nbDilate)
 {
-	for (int i = 0; i < img -> w; i++)
-	{
-		for (int j = 0; j < img -> h; j++)
-		{
-			put_pixel(img, i, j, SDL_MapRGB(img -> format, 255, 255, 255));
-		}
-	}
-}
+	for (int i = 0; i < nbBlur; i++)
+		BoxBlur(img);
 
-double AngleBetweenComponents(struct Component *c1, struct Component *c2, struct Component *c3)
-{
-	// computes angle between vectors c1 -> c2 and c1 -> c3
-	// plate numbers are usually colinear
-	
-	int p1_x = c1 -> topmost_x, p1_y = c1 -> topmost_y;
-        int p2_x = c2 -> topmost_x, p2_y = c2 -> topmost_y;
-        int p3_x = c3 -> topmost_x, p3_y = c3 -> topmost_y;
+	Grayscale(img);
+        Binarize(img);
 
-        double angle = (atan2(p3_y - p1_y, p3_x - p1_x) - atan2(p2_y - p1_y, p2_x - p1_x)) * 180 / M_PI;
+	for (int i = 0; i < nbErode; i++)
+		Erosion(img);
 
-	return angle;
-
+	for (int i = 0; i < nbDilate; i++)
+                Dilation(img);
 }
 
 int main(int argc, char *argv[])
 {
 	if (argc != 2)
 		return 1;
-
 	
 	init_sdl();
 	SDL_Surface *img = load_image(argv[1]);
-	SDL_Surface *img_copy = copy_image(img);
-	SDL_Surface *res = copy_image(img);
+	SDL_Surface *img_copy = load_image(argv[1]);
+	SDL_Surface *res = load_image(argv[1]);
+
+	PreProcess(img, 3, 0, 0);
+
+	/*
+	 *struct Component *GetComponents(SDL_Surface *img,
+                int *len, int max_h, int max_w, int min_h, int min_w, int min_size,
+                float max_ratio, float min_ratio);
+	 */
 
 	int len;
-	struct Component *components = GetComponents(img, &len);
-
-	SDL_SaveBMP(img, "dilated_img.bmp");
+	struct Component *components = GetComponents(img, &len, img -> h / 2, img -> w / 3, 30, 10, 50, 1, 0);
 
 	if (!components)
                 errx(1, "err");
 
-
 	for (int i = 0; i < len; i++)
 	{
-		char name[3];
-		sprintf(name, "%hu", (short) i);
-		char *res_path;
-		int size = asprintf(&res_path, "%s%s%s", "components/", name, ".bmp");
-
-		if (size == -1)
-			errx(1, "asprintf()");
-
 		components[i].id = i;
-
-		//SaveComponentToBMP(img_copy, &components[i], res_path);
-
-		printf("%i\n", components[i].id);
 	}
-
 
 	// cluster : set of "colinear" components
-	struct vector *current_cluster = vector_new();
 
-	for (int i = 0; i < len; i++)
-	{
-		for (int j = i + 1; j < len; j++)
-		{
-			for (int k = j + 1; k < len; k++)
-			{
-				double angle = AngleBetweenComponents(&components[i], &components[j], &components[k]);
-				
-				if (fabs(angle) < 3)
-				{
-					vector_push(current_cluster, components[k].id);
-					printf("%f\n", angle);
-					printf("colinear !\n");
-					
-					if (current_cluster -> size == 5)
-						break;
-				}
-			}
-
-			if (current_cluster -> size == 5)
-			{
-				vector_push(current_cluster, components[j].id);
-				break;
-			}
-		}
-
-		if (current_cluster -> size == 6)
-		{
-			vector_push(current_cluster, components[i].id);
-			break;
-		}
-
-		current_cluster -> size = 0;
-	}
+	// agnle val 3
+	struct vector *current_cluster = GetColinearComponents(components, &len, 2);
 
 
 	Uint8 color = SDL_MapRGB(img -> format, 255, 0, 0);
 	struct Component *c;
+	
+	Binarize(img_copy);
 	for (int i = 0; i < (int) current_cluster -> size; i++)
 	{
 		c = &components[*(current_cluster -> data + i)];
@@ -135,9 +86,24 @@ int main(int argc, char *argv[])
 
 		SaveComponentToBMP(img_copy, c, res_path);
 
+		// use gocr to recog characters
+		int pid = fork();		
+		if (pid == 0)
+		{
+			execlp("gocr", "gocr", "-o",name, res_path, (char *) NULL);
+			exit(0);
+		}
+		else if (pid > 0)
+		{
+			wait(NULL);
+		}
 	}
 
 	SDL_SaveBMP(res, "final.bmp");
+
+	//gocr -o out.txt 5.bmp
+
+
 
 	return 0;
 }

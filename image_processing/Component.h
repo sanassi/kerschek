@@ -41,7 +41,14 @@ void SaveComponentToBMP(SDL_Surface *img, struct Component *c, char *name);
 
 void free_component(struct Component *c);
 
-struct Component *GetComponents(SDL_Surface *img, int *len);
+//struct Component *GetComponents(SDL_Surface *img, int *len);
 
+struct Component *GetComponents(SDL_Surface *img,
+                int *len, int max_h, int max_w, int min_h, int min_w, int min_size,
+		float max_ratio, float min_ratio);
+
+double AngleBetweenComponents(struct Component *c1, struct Component *c2, struct Component *c3);
+
+struct vector *GetColinearComponents(struct Component *components, int *len, int min_angle);
 
 #endif

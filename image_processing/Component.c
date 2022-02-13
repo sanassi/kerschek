@@ -6,7 +6,7 @@ void SaveComponentToBMP(SDL_Surface *img, struct Component *c, char *name)
 	Uint32 pixel;
 	//Uint8 r, g, b;
 
-	SDL_Surface *res = SDL_CreateRGBSurface(SDL_HWSURFACE, c -> width, c -> height, 32, 255, 255, 255, 0);
+	SDL_Surface *res = SDL_CreateRGBSurface(SDL_HWSURFACE, c -> width, c -> height, 32, 0, 0, 0, 0);
 
 	for (int i = c -> box_origin_x; i < res -> w + c -> box_origin_x; i++)
 	{
@@ -174,31 +174,18 @@ struct Component *GetComponent(SDL_Surface *img, int x, int y)
 
 }
 
-struct Component *GetComponents(SDL_Surface *img, int *len)
+struct Component *GetComponents(SDL_Surface *img,
+                int *len, int max_h, int max_w, int min_h, int min_w, int min_size,
+		float max_ratio, float min_ratio)
 {
-	init_sdl();
-	
-	//pre processing----------
-	BoxBlur(img);
-	BoxBlur(img);
-	BoxBlur(img);
-
-	Grayscale(img);
-	Binarize(img);
-
-	//Erosion(img);
-
-	Dilation(img);
-	Dilation(img);
-	//-------------------------	
-
 	SDL_Surface *img_copy = copy_image(img);
+	
 	Uint32 pixel;
 	Uint8 r, g, b;
 
-	int MAX_SIZE = 100;
+	int MAX_NB = 100;
 
-	struct Component *components = malloc(MAX_SIZE * sizeof(struct Component)); // array of components : TODO : find a way to get adjustable size
+	struct Component *components = malloc(MAX_NB * sizeof(struct Component)); // array of components : TODO : find a way to get adjustable size
 
 	int count = 0; // index to loop over components array
 
@@ -211,15 +198,18 @@ struct Component *GetComponents(SDL_Surface *img, int *len)
 			pixel = get_pixel(img, i, j);
 			SDL_GetRGB(pixel, img -> format, &r, &g, &b);
 
-			if (r == 0 && count < MAX_SIZE)
+			if (r == 0 && count < MAX_NB)
 			{
+
 				struct Component *c = GetComponent(img, i, j);
 
 				// check component size and shape
-				if (c -> points -> size > 100 && c -> height < img -> h < 2 && c -> width < img -> w / 2 && c -> height > 50 && c -> width > 10)
+				if (c -> points -> size > min_size && c -> height < max_h && c -> height > min_h
+						&& c -> width < max_w && c -> width > min_w)
 				{
 		                        //bounding box
-					if (((float)(c -> width) / ((float) c -> height)) < 1) // aspect ratio
+					if (((float)(c -> width) / ((float) c -> height)) < max_ratio &&
+							((float)(c -> width) / ((float) c -> height)) > min_ratio) // aspect ratio
 					{
 						components[count] = *c;
 
@@ -239,6 +229,62 @@ struct Component *GetComponents(SDL_Surface *img, int *len)
 	*len = count;
 
 	return components;
+}
+
+double AngleBetweenComponents(struct Component *c1, struct Component *c2, struct Component *c3)
+{
+        // computes angle between vectors c1 -> c2 and c1 -> c3
+        // plate numbers are usually colinear
+
+        int p1_x = c1 -> topmost_x, p1_y = c1 -> topmost_y;
+        int p2_x = c2 -> topmost_x, p2_y = c2 -> topmost_y;
+        int p3_x = c3 -> topmost_x, p3_y = c3 -> topmost_y;
+
+        double angle = (atan2(p3_y - p1_y, p3_x - p1_x) - atan2(p2_y - p1_y, p2_x - p1_x)) * 180 / M_PI;
+
+        return angle;
+
+}
+
+struct vector *GetColinearComponents(struct Component *components, int *len, int min_angle)
+{
+        struct vector *current_cluster = vector_new();
+
+        for (int i = 0; i < *len; i++)
+        {
+                for (int j = i + 1; j < *len; j++)
+                {
+                        for (int k = j + 1; k < *len; k++)
+                        {
+                                double angle = AngleBetweenComponents(&components[i], &components[j], &components[k]);
+
+                                if (fabs(angle) < min_angle)
+                                {
+                                        vector_push(current_cluster, components[k].id);
+                                        printf("%f\n", angle);
+                                        printf("colinear !\n");
+
+                                        if (current_cluster -> size == 5)
+                                                break;
+                                }
+                        }
+
+                        if (current_cluster -> size == 5)
+                        {
+                                vector_push(current_cluster, components[j].id);
+                                break;
+                        }
+                }
+
+                if (current_cluster -> size == 6)
+                {
+                        vector_push(current_cluster, components[i].id);
+                        break;
+                }
+
+                current_cluster -> size = 0;
+        }
+        return current_cluster;
 }
 
 void free_component(struct Component *c)

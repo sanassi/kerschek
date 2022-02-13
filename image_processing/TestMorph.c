@@ -28,8 +28,18 @@ int main(int argc, char *argv[])
 	SDL_Surface *img = load_image(argv[1]);
 
 	BoxBlur(img);
+	BoxBlur(img);
+	BoxBlur(img);
+	BoxBlur(img);
+//	BoxBlur(img);
+//        BoxBlur(img);
+//        BoxBlur(img);
+
+
         Grayscale(img);
         Binarize(img);
+
+	SDL_SaveBMP(img, "proc.bmp");
 
 
 	SDL_Surface *edges = SDL_CreateRGBSurface(SDL_HWSURFACE, img -> w, img -> h, 32, 0, 0, 0, 0);
@@ -38,21 +48,32 @@ int main(int argc, char *argv[])
 
 	Invert(edges);
 
-	for (int i = 0; i < 1; i++)
-	{
-		Erosion(edges);
-	}
 
-	for (int i = 0; i < 10; i++)
+	for (int i = 0; i < 12; i++)
 	{
 		Dilation(edges);
+//		Erosion(edges);
 	}
+
+	SDL_SaveBMP(edges, "edges.bmp");
+
+
+	int len;
+        
+	struct Component *components = GetComponents(edges, &len, img -> h, img -> w, 50, 10, 0, 6, 2);
+	
+//	struct Component *components = GetComponents(edges, &len, img -> h, img -> w, 30, 10, 100, 1, 0);
+
+
+	printf("%i", len);
+
+	if (!components)
+		return 1;
+
 
 
 	SDL_SaveBMP(edges, "sobel.bmp");
-
 	SDL_SaveBMP(img, "dilation.bmp");
-
 
 	return 0;
 }
