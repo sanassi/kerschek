@@ -152,7 +152,7 @@ SDL_Surface* copy_image(SDL_Surface *img)
 	copy = SDL_CreateRGBSurface(SDL_HWSURFACE,
 			img->w,
 			img->h,
-			img->format->BitsPerPixel, 0, 0, 0, 0);
+			32, 0, 0, 0, 0);
 	for (int i = 0; i < img->w; i++)
 	{
 		for (int j = 0; j < img -> h; j++)
