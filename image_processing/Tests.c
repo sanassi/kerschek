@@ -32,6 +32,34 @@ void PreProcess(SDL_Surface *img, int nbBlur, int nbErode, int nbDilate)
                 Dilation(img);
 }
 
+void Swap(int *x, int *y)
+{
+	int temp = *x;
+	*x = *y;
+	*y = temp;
+}
+
+void SortComponentVector(struct vector *v, struct Component *components, int len)
+{
+	int *data = v -> data;
+	int i, j, min_index;
+	
+	for (i = 0; i < len - 1; i++)
+	{
+		min_index = i;
+
+		for (j = i + 1; j < len; j++)
+		{
+			if (components[data[j]].box_origin_x < components[data[min_index]].box_origin_x)
+			{
+				min_index = j;
+			}
+		}
+
+		Swap(&v -> data[min_index], &v -> data[i]);
+	}
+}
+
 int main(int argc, char *argv[])
 {
 	if (argc != 2)
@@ -70,6 +98,8 @@ int main(int argc, char *argv[])
 	struct vector *current_cluster = GetColinearComponents(components, &len, 2);
 
 
+	SortComponentVector(current_cluster, components, current_cluster -> size);
+
 	Uint8 color = SDL_MapRGB(img -> format, 255, 0, 0);
 	struct Component *c;
 	
@@ -93,6 +123,7 @@ int main(int argc, char *argv[])
 		int pid = fork();		
 		if (pid == 0)
 		{
+			printf("ok");
 			execlp("gocr", "gocr", "-o",name, res_path, (char *) NULL);
 			exit(0);
 		}
@@ -100,13 +131,12 @@ int main(int argc, char *argv[])
 		{
 			wait(NULL);
 		}
+		// end gocr
 	}
 
 	SDL_SaveBMP(res, "final.bmp");
 
 	//gocr -o out.txt 5.bmp
-
-
 
 	return 0;
 }
