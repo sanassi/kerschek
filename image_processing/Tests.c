@@ -63,7 +63,10 @@ int main(int argc, char *argv[])
 
 	// cluster : set of "colinear" components
 
-	// agnle val 3
+	// ok values
+	// angle val 3
+	// angle val 1
+	// agnle val 2
 	struct vector *current_cluster = GetColinearComponents(components, &len, 2);
 
 
