@@ -17,20 +17,6 @@
 #include <unistd.h>
 #include <sys/wait.h>
 
-void PreProcess(SDL_Surface *img, int nbBlur, int nbErode, int nbDilate)
-{
-	for (int i = 0; i < nbBlur; i++)
-		BoxBlur(img);
-
-	Grayscale(img);
-        Binarize(img);
-
-	for (int i = 0; i < nbErode; i++)
-		Erosion(img);
-
-	for (int i = 0; i < nbDilate; i++)
-                Dilation(img);
-}
 
 // sort components (according to their x pos) to get license plate numbers in the correct order
 void Swap(int *x, int *y)
@@ -72,6 +58,7 @@ int main(int argc, char *argv[])
 	SDL_Surface *res = load_image(argv[1]);
 
 	PreProcess(img, 3, 0, 0);
+	
 
 	
 	 //struct Component *GetComponents(SDL_Surface *img,
@@ -96,7 +83,7 @@ int main(int argc, char *argv[])
 	// angle val 3
 	// angle val 1
 	// agnle val 2
-	struct vector *current_cluster = GetColinearComponents(components, &len, 2);
+	struct vector *current_cluster = GetColinearComponents(components, &len, 3);
 
 	SortComponentVector(current_cluster, components, current_cluster -> size);
 

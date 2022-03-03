@@ -104,8 +104,26 @@ Uint8 GetOtsuThreshold(SDL_Surface* image_surface)
 
 void Binarize(SDL_Surface* image_surface)
 {
+
+	
 	Uint8 r, g, b;
 	Uint32 pixel;
+	/*
+	for (int i = 0; i < image_surface -> w; i++)
+	{
+		for (int j = 0; j < image_surface -> h; j++)
+		{
+			pixel = get_pixel(image_surface, i, j);
+                        SDL_GetRGB(pixel,image_surface->format,&r,&g,&b);
+                        if (b > 100)
+                        {
+                        	pixel = SDL_MapRGB(image_surface->format, 255, 255, 255);
+                        	put_pixel(image_surface, i, j, pixel);
+                        }
+		}
+	}
+	*/
+	
 	Uint8 threshold = GetOtsuThreshold(image_surface);
 
 	for (int i = 0; i < image_surface->h; i++)
@@ -128,4 +146,40 @@ void Binarize(SDL_Surface* image_surface)
 			}
 		}
 	}
+	//SDL_SaveBMP(image_surface, "test_remove_blue.bmp");
+}
+
+void PreProcess(SDL_Surface *img, int nbBlur, int nbErode, int nbDilate)
+{
+	for (int i = 0; i < nbBlur; i++)
+		BoxBlur(img);
+		
+	Uint8 r, g, b;
+	Uint32 pixel;
+	
+	for (int i = 0; i < img -> w; i++)
+	{
+		for (int j = 0; j < img -> h; j++)
+		{
+			pixel = get_pixel(img, i, j);
+                        SDL_GetRGB(pixel,img->format,&r,&g,&b);
+                        if (b > 100)
+                        {
+                        	pixel = SDL_MapRGB(img->format, 255, 255, 255);
+                        	put_pixel(img, i, j, pixel);
+                        }
+		}
+	}
+
+	Grayscale(img);
+        Binarize(img);
+        
+        SDL_SaveBMP(img, "test.bmp");
+        
+
+	for (int i = 0; i < nbErode; i++)
+		Erosion(img);
+
+	for (int i = 0; i < nbDilate; i++)
+                Dilation(img);
 }

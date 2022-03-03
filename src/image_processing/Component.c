@@ -173,10 +173,6 @@ struct Component *GetComponent(SDL_Surface *img, int x, int y)
 //	vector_free(q);
 
 	return c;
-<<<<<<< HEAD
-
-=======
->>>>>>> dd7ad1c7900712bcca26f19ce341826d9e5f982a
 }
 
 struct Component *GetComponents(SDL_Surface *img,
@@ -209,11 +205,7 @@ struct Component *GetComponents(SDL_Surface *img,
 				struct Component *c = GetComponent(img, i, j);
 
 				// check component size and shape
-<<<<<<< HEAD
-				if ((int) c -> points -> size > min_size && c -> height < max_h && c -> height > min_h
-=======
 				if (c -> points -> size > (size_t) min_size && c -> height < max_h && c -> height > min_h
->>>>>>> dd7ad1c7900712bcca26f19ce341826d9e5f982a
 						&& c -> width < max_w && c -> width > min_w)
 				{
 		                        //bounding box

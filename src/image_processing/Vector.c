@@ -70,11 +70,7 @@ int vector_isEmpty(struct vector *v)
 
 void print_vector(struct vector *v)
 {
-<<<<<<< HEAD
-	for (int i = 0; i < (int) v -> size; i++)
-=======
 	for (size_t i = 0; i < v -> size; i++)
->>>>>>> dd7ad1c7900712bcca26f19ce341826d9e5f982a
 	{
 		printf("%i ", (v -> data)[i]);
 	}
