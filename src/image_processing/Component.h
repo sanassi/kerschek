@@ -7,7 +7,7 @@
 #include "Sobel.h"
 #include "Blur.h"
 #include "PreProcessing.h"
-#include "SdlHelper/SdlHelperFunctions.h"
+#include "SdlHelperFunctions.h"
 #include "Rescaling.h"
 #include "Floodfill.h"
 #include "Morph.h"
@@ -15,6 +15,7 @@
 #include "Vector.h"
 #include "Hough.h"
 #include <string.h>
+#include <math.h>
 
 struct Component
 {

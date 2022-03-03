@@ -6,7 +6,7 @@
 
 #include <SDL/SDL.h>
 #include <math.h>
-#include "SdlHelper/SdlHelperFunctions.h"
+#include "SdlHelperFunctions.h"
 
 void DrawLine(SDL_Surface *img, int x0, int y0, int x1, int y1, float wd, Uint32 pixel_color);
 

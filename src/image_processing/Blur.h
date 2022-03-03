@@ -7,7 +7,7 @@
 #include <float.h>
 
 #include <SDL/SDL.h>
-#include "SdlHelper/SdlHelperFunctions.h"
+#include "SdlHelperFunctions.h"
 
 void BoxBlur(SDL_Surface *image);
 

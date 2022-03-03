@@ -15,7 +15,7 @@ double *BW_BitmapToArray(SDL_Surface *img)
 
 			SDL_GetRGB(pixel, img -> format, &r, &g, &b);
 
-			if (r == 0 && g == 0 & b == 0)
+			if ((r == 0) && (g == 0) & (b == 0))
 			{
 				arr[i * img -> w + j] = 1;
 			}

@@ -6,7 +6,7 @@
 #include <math.h>
 
 #include <SDL/SDL.h>
-#include "SdlHelper/SdlHelperFunctions.h"
+#include "SdlHelperFunctions.h"
 #include "PreProcessing.h"
 #include "Blur.h"
 
