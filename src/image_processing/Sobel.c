@@ -33,7 +33,10 @@ void SobelEdgeDetection(SDL_Surface *in, SDL_Surface *out, double threshold)
 	double gx, gy;
 
 	double g_px;
+<<<<<<< HEAD
 	//double theta;
+=======
+>>>>>>> dd7ad1c7900712bcca26f19ce341826d9e5f982a
 	Uint32 pixel;
 	//Uint8 r, g, b;
 
@@ -58,9 +61,12 @@ void SobelEdgeDetection(SDL_Surface *in, SDL_Surface *out, double threshold)
 			gy = Convolution(in, kernel_y, i, j);
 
 			g_px = sqrt(gx * gx + gy * gy);
+<<<<<<< HEAD
 
 
 			//theta = atan2(gy, gx);
+=======
+>>>>>>> dd7ad1c7900712bcca26f19ce341826d9e5f982a
 		
 		
 			if (!(g_px > threshold))

@@ -3,7 +3,7 @@
 #include "Sobel.h"
 #include "Blur.h"
 #include "PreProcessing.h"
-#include "SdlHelper/SdlHelperFunctions.h" 
+#include "SdlHelperFunctions.h" 
 #include "Rescaling.h"
 #include "Floodfill.h"
 #include "Drawing.h"

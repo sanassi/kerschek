@@ -4,7 +4,7 @@
 #include <stdio.h>
 #include <stdlib.h>
 #include <SDL/SDL.h>
-#include "SdlHelper/SdlHelperFunctions.h"
+#include "SdlHelperFunctions.h"
 #include <err.h>
 
 SDL_Surface *NearestNeighbourScale(SDL_Surface *src, int newWidth, int newHeight);

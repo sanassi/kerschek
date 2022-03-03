@@ -1,7 +1,7 @@
 #include "Vector.h"
 #include <stdio.h>
 
-
+/*
 int main()
 {
 	struct vector *v = vector_new();
@@ -20,3 +20,4 @@ int main()
 
 	return 0;
 }
+*/
