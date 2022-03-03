@@ -70,7 +70,7 @@ int vector_isEmpty(struct vector *v)
 
 void print_vector(struct vector *v)
 {
-	for (int i = 0; i < v -> size; i++)
+	for (int i = 0; i < (int) v -> size; i++)
 	{
 		printf("%i ", (v -> data)[i]);
 	}

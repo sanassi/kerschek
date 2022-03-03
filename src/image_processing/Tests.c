@@ -73,11 +73,11 @@ int main(int argc, char *argv[])
 
 	PreProcess(img, 3, 0, 0);
 
-	/*
-	 *struct Component *GetComponents(SDL_Surface *img,
-                int *len, int max_h, int max_w, int min_h, int min_w, int min_size,
-                float max_ratio, float min_ratio);
-	 */
+	
+	 //struct Component *GetComponents(SDL_Surface *img,
+           //     int *len, int max_h, int max_w, int min_h, int min_w, int min_size,
+           //     float max_ratio, float min_ratio);
+	 
 
 	int len;
 	struct Component *components = GetComponents(img, &len, img -> h / 2, img -> w / 3, 30, 10, 50, 1, 0);
