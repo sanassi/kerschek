@@ -18,7 +18,8 @@
 #include <sys/wait.h>
 #include "Video.h"
 
-char *GetPlateAsString(char *path)
+// TODO : clean up
+char *GetPlateAsString(char *path, int angle)
 {
 	init_sdl();
 	SDL_Surface *img = load_image(path);
@@ -26,8 +27,6 @@ char *GetPlateAsString(char *path)
 	SDL_Surface *res = load_image(path);
 
 	PreProcess(img, 3, 0, 0);
-	
-
 	
 	 //struct Component *GetComponents(SDL_Surface *img,
            //     int *len, int max_h, int max_w, int min_h, int min_w, int min_size,
@@ -52,7 +51,7 @@ char *GetPlateAsString(char *path)
 	// angle val 3
 	// angle val 1
 	// agnle val 2
-	struct vector *current_cluster = GetColinearComponents(components, &len, 2);
+	struct vector *current_cluster = GetColinearComponents(components, &len, angle);
 
 	SortComponentVector(current_cluster, components, current_cluster -> size);
 
@@ -115,6 +114,28 @@ char *GetPlateAsString(char *path)
 	return plate;
 }
 
+int PlateIsOk(char *s)
+{
+	// return val : 1 FALSE
+	// 		0 TRUE
+	
+	for (int i = 0; i < 7; i++)
+	{
+		// ocr didn't work
+		if (s[i] == '_')
+			return 1;
+		// is not alphanumeric
+		if (!((s[i] >= 'A' && s[i] <= 'Z') || (s[i] >= '0' && s[i] <= '9')))
+			return 1;
+
+		// is not a plate char
+		if (s[i] == 'I' || s[i] == 'U' || s[i] == 'O')
+			return 1;
+	}
+
+
+	return 0;
+}
 int main(int argc, char *argv[])
 {
 	/*
@@ -128,8 +149,10 @@ int main(int argc, char *argv[])
 	if (argc != 2)
 		return 1;
 	
-	char *plate = GetPlateAsString(argv[1]);
+	char *plate = GetPlateAsString(argv[1], 3);
 	
 	printf("\n%s\n", plate);
+
+	printf("Is Ok : %s", PlateIsOk(plate) == 0 ? "True" : "False");
 	return 0;
 }
