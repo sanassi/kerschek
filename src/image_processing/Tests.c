@@ -76,7 +76,7 @@ char *GetPlateAsString(char *path, int angle)
 			printf("rip:/");
 
 		//SaveComponentToBMP(img_copy, c, res_path);
-		SaveComponentToBMP_2(c, res_path);
+		SaveComponentToBMP_2(c, res_path, 40);
 
 		// use gocr to recog characters
 		int pid = fork();
@@ -138,13 +138,11 @@ int PlateIsOk(char *s)
 }
 int main(int argc, char *argv[])
 {
-	/*
 	if (argc > 0 && argv)
 		printf("\n");
-
+/*
 	ReadVideo();
 	*/
-	
 	
 	if (argc != 2)
 		return 1;
@@ -154,5 +152,6 @@ int main(int argc, char *argv[])
 	printf("\n%s\n", plate);
 
 	printf("Is Ok : %s", PlateIsOk(plate) == 0 ? "True" : "False");
+
 	return 0;
 }
