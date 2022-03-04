@@ -1,9 +1,9 @@
 #include "Component.h"
 
 //TODO : change way components saved, so i dont use the src img  -> DONE
-void SaveComponentToBMP_2(struct Component *c, char *name)
+void SaveComponentToBMP_2(struct Component *c, char *name, int offset)
 {
-	int offset = 40;// so digits centered
+	//int offset = 40;// so digits centered
 
 	SDL_Surface *img = SDL_CreateRGBSurface(SDL_HWSURFACE, c -> width + offset, c -> height + offset, 32, 0, 0, 0, 0);
 
@@ -27,6 +27,7 @@ void SaveComponentToBMP_2(struct Component *c, char *name)
 
 	SDL_SaveBMP(NearestNeighbourScale(img, 28, 28), name);
 
+	SDL_SaveBMP(img, name);
 	free(img);
 }
 

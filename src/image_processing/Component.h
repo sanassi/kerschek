@@ -42,7 +42,7 @@ void SaveComponentToBMP(SDL_Surface *img, struct Component *c, char *name);
 
 void free_component(struct Component *c);
 
-void SaveComponentToBMP_2(struct Component *c, char *name);
+void SaveComponentToBMP_2(struct Component *c, char *name, int offset);
 
 void SortComponentVector(struct vector *v, struct Component *components, int len);
 
