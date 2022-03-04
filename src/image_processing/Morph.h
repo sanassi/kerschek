@@ -6,7 +6,7 @@
 #include <SDL/SDL.h>
 #include <err.h>
 #include <math.h>
-#include "SdlHelper/SdlHelperFunctions.h"
+#include "SdlHelperFunctions.h"
 #include <float.h>
 
 void Erosion(SDL_Surface *img);
