@@ -16,46 +16,14 @@
 #include "Morph.h"
 #include <unistd.h>
 #include <sys/wait.h>
+#include "Video.h"
 
-
-// sort components (according to their x pos) to get license plate numbers in the correct order
-void Swap(int *x, int *y)
+char *GetPlateAsString(char *path)
 {
-	int temp = *x;
-	*x = *y;
-	*y = temp;
-}
-
-void SortComponentVector(struct vector *v, struct Component *components, int len)
-{
-	int *data = v -> data;
-	int i, j, min_index;
-	
-	for (i = 0; i < len - 1; i++)
-	{
-		min_index = i;
-
-		for (j = i + 1; j < len; j++)
-		{
-			if (components[data[j]].box_origin_x < components[data[min_index]].box_origin_x)
-			{
-				min_index = j;
-			}
-		}
-
-		Swap(&v -> data[min_index], &v -> data[i]);
-	}
-}
-
-int main(int argc, char *argv[])
-{
-	if (argc != 2)
-		return 1;
-	
 	init_sdl();
-	SDL_Surface *img = load_image(argv[1]);
-	SDL_Surface *img_copy = load_image(argv[1]);
-	SDL_Surface *res = load_image(argv[1]);
+	SDL_Surface *img = load_image(path);
+	SDL_Surface *img_copy = load_image(path);
+	SDL_Surface *res = load_image(path);
 
 	PreProcess(img, 3, 0, 0);
 	
@@ -67,6 +35,7 @@ int main(int argc, char *argv[])
 	 
 
 	int len;
+	// TODO : use struct component hint  as arg to get components
 	struct Component *components = GetComponents(img, &len, img -> h / 2, img -> w / 3, 30, 10, 50, 1, 0);
 
 	if (!components)
@@ -83,7 +52,7 @@ int main(int argc, char *argv[])
 	// angle val 3
 	// angle val 1
 	// agnle val 2
-	struct vector *current_cluster = GetColinearComponents(components, &len, 3);
+	struct vector *current_cluster = GetColinearComponents(components, &len, 2);
 
 	SortComponentVector(current_cluster, components, current_cluster -> size);
 
@@ -91,27 +60,31 @@ int main(int argc, char *argv[])
 	struct Component *c;
 	
 	Binarize(img_copy);
+	
 	for (int i = 0; i < (int) current_cluster -> size; i++)
 	{
 		c = &components[*(current_cluster -> data + i)];
 		DrawRectangle(res, c -> box_origin_y, c -> box_origin_x, c -> height,c ->  width, 4, color);
 
+		// build path to save bitmap
 		char name[3];
                 sprintf(name, "%hu", (short) i);
                 char *res_path;
                 int size = asprintf(&res_path, "%s%s%s", "components/", name, ".bmp");
+		//
 
 		if (size == -1)
 			printf("rip:/");
 
-		SaveComponentToBMP(img_copy, c, res_path);
+		//SaveComponentToBMP(img_copy, c, res_path);
+		SaveComponentToBMP_2(c, res_path);
 
 		// use gocr to recog characters
-		int pid = fork();		
+		int pid = fork();
+		fflush(stdout);
+
 		if (pid == 0)
 		{
-			
-			printf("ok");
 			execlp("gocr", "gocr", "-o",name, res_path, (char *) NULL);
 			exit(0);
 		}
@@ -124,5 +97,39 @@ int main(int argc, char *argv[])
 
 	SDL_SaveBMP(res, "final.bmp");
 
+	// read digits
+	//
+	
+	char *plate = malloc(7 * sizeof(char));
+	char number[2];
+
+	for (int i = 0; i < 7; i++)
+	{
+		sprintf(number, "%hu", (short) i);
+
+		FILE *fp = fopen(number, "r");
+		plate[i] = toupper(fgetc(fp)); // so all char are uppercase
+        	fclose(fp);
+	}
+	
+	return plate;
+}
+
+int main(int argc, char *argv[])
+{
+	/*
+	if (argc > 0 && argv)
+		printf("\n");
+
+	ReadVideo();
+	*/
+	
+	
+	if (argc != 2)
+		return 1;
+	
+	char *plate = GetPlateAsString(argv[1]);
+	
+	printf("\n%s\n", plate);
 	return 0;
 }
