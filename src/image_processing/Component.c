@@ -270,64 +270,6 @@ struct Component *GetComponents(SDL_Surface *img,
 }
 
 
-/*
-struct Component *GetComponents(SDL_Surface *img,
-                int *len, int max_h, int max_w, int min_h, int min_w, int min_size,
-		float max_ratio, float min_ratio)
-{
-	SDL_Surface *img_copy = copy_image(img);
-	
-	Uint32 pixel;
-	Uint8 r, g, b;
-
-	int MAX_NB = 100;
-
-	struct Component *components = malloc(MAX_NB * sizeof(struct Component)); // array of components : TODO : find a way to get adjustable size
-
-	int count = 0; // index to loop over components array
-
-	Uint32 color = SDL_MapRGB(img -> format, 0, 255, 0);
-
-	for (int i = 0; i < img -> w; i++)
-	{
-		for (int j = 0; j < img -> h; j++)
-		{
-			pixel = get_pixel(img, i, j);
-			SDL_GetRGB(pixel, img -> format, &r, &g, &b);
-
-			if (r == 0 && count < MAX_NB)
-			{
-
-				struct Component *c = GetComponent(img, i, j);
-
-				// check component size and shape
-				if (c -> points -> size > (size_t) min_size && c -> height < max_h && c -> height > min_h
-						&& c -> width < max_w && c -> width > min_w)
-				{
-		                        //bounding box
-					if (((float)(c -> width) / ((float) c -> height)) < max_ratio &&
-							((float)(c -> width) / ((float) c -> height)) > min_ratio) // aspect ratio
-					{
-						components[count] = *c;
-
-						DrawRectangle(img_copy, c -> box_origin_y, c -> box_origin_x, c -> height,c ->  width, 4, color);
-						
-						c -> id = count;
-						count++;
-					}
-				}
-			}
-		}
-	}
-
-	SDL_SaveBMP(img_copy, "res.bmp");
-	SDL_FreeSurface(img_copy);
-
-	*len = count;
-
-	return components;
-}
-*/
 double AngleBetweenComponents(struct Component *c1, struct Component *c2, struct Component *c3)
 {
         // computes angle between vectors c1 -> c2 and c1 -> c3
