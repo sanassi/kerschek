@@ -6,6 +6,7 @@
 #include "SdlHelperFunctions.h"
 #include <unistd.h>
 #include <string.h>
+#include "Drawing.h"
 
 void ReadVideo();
 

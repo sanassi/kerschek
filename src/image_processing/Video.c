@@ -96,7 +96,6 @@ char *Output_CMD(char *vid_path, char *vid_output_path)
 
 void ReadVideo()
 {
-
 	// Get Video Resolution
 	int H = 1, W = 1;
 	GetVideoResolution("IMG_9234.mp4", &H, &W);
@@ -104,89 +103,91 @@ void ReadVideo()
 	// Allocate a buffer to store one frame
 	unsigned char frame[H][W][3];
 
-    int x, y, count;
-    int nbRead = 0;
-
-    Uint32 pixel;
-    Uint8 r, g, b;
+    	int x, y, count;
+    	int nbRead = 0;
 
 
-
-    // Open an input pipe from ffmpeg and an output pipe to a second instance of ffmpeg
-    FILE *pipein = popen(Input_CMD("IMG_9234.mp4"), "r");
-    FILE *pipeout = popen(Output_CMD("IMG_9234.mp4", "output.mp4"), "w");
-
-
-    fread(frame, 1, H*W*3, pipein);
-
-    SDL_Surface *background = SDL_CreateRGBSurface(SDL_HWSURFACE, W, H, 32, 0, 0, 0, 0);
-
-    for (int i = 0; i < H; i++)
-                {
-                        for (int j = 0; j < W; j++)
-                        {
-                                r = (Uint8) frame[i][j][0];
-                                g = (Uint8) frame[i][j][1];
-                                b = (Uint8) frame[i][j][2];
-                                pixel = SDL_MapRGB(background -> format, r, g, b);
-                                put_pixel(background, j, i, pixel);
-                        }
-                }
-    SDL_SaveBMP(background, "back.bmp");
+    	Uint32 pixel;
+    	Uint8 r, g, b;
 
 
 
-    // Process video frames
-    while(1)
-    {
-        // Read a frame from the input pipe into the buffer
-        count = fread(frame, 1, H*W*3, pipein);
-
-	SDL_Surface *img = SDL_CreateRGBSurface(SDL_HWSURFACE, W, H, 32, 0, 0, 0, 0);;
+    	// Open an input pipe from ffmpeg and an output pipe to a second instance of ffmpeg
+    	FILE *pipein = popen(Input_CMD("IMG_9234.mp4"), "r");
+    	FILE *pipeout = popen(Output_CMD("IMG_9234.mp4", "output.mp4"), "w");
 
 
-	for (int i = 0; i < H; i++)
-	{
-		for (int j = 0; j < W; j++)
+    	// use the first frame as background image
+	fread(frame, 1, H*W*3, pipein);
+    	SDL_Surface *background = SDL_CreateRGBSurface(SDL_HWSURFACE, W, H, 32, 0, 0, 0, 0);
+
+    	for (int i = 0; i < H; i++)
+    	{
+    		for (int j = 0; j < W; j++)
 		{
 			r = (Uint8) frame[i][j][0];
-                        g = (Uint8) frame[i][j][1];
-       	                b = (Uint8) frame[i][j][2];
-			pixel = SDL_MapRGB(img -> format, r, g, b);
-			put_pixel(img, j, i, pixel);
+			g = (Uint8) frame[i][j][1];
+			b = (Uint8) frame[i][j][2];
+			pixel = SDL_MapRGB(background -> format, r, g, b);
+			put_pixel(background, j, i, pixel);
 		}
-	}
+    	}
+    	SDL_SaveBMP(background, "back.bmp");
 
-	//
-	
-	SDL_Surface *sub = FrameDifference(img, background);
 
-        // If we didn't get a frame of video, we're probably at the end
-        if (count != H*W*3) break;
 
-        // Process this frame
-        for (y=0 ; y<H; ++y) for (x=0 ; x<W; ++x)
-        {
-            // Invert each colour component in every pixel
+    	// Process video frames
+    	while(1)
+    	{
+		// Read a frame from the input pipe into the buffer
+		count = fread(frame, 1, H*W*3, pipein);
+		// If we didn't get a frame of video, we're probably at the end
+		if (count != H*W*3) break;
 
-		pixel = get_pixel(sub, x, y);
-		SDL_GetRGB(pixel , img -> format, &r, &g, &b);
-            frame[y][x][0] = (unsigned char) r;
-            frame[y][x][1] = (unsigned char) g;
-            frame[y][x][2] = (unsigned char) b;
-        }
+		// Process this frame
 
-        // Write this frame to the output pipe
-        fwrite(frame, 1, H*W*3, pipeout);
+		SDL_Surface *img = SDL_CreateRGBSurface(SDL_HWSURFACE, W, H, 32, 0, 0, 0, 0);;
 
-	nbRead++;
-    }
 
-    // Flush and close input and output pipes
-    fflush(pipein);
-    pclose(pipein);
-    fflush(pipeout);
-    pclose(pipeout);
+		// convert frame to sdl_surface
+		for (int i = 0; i < H; i++)
+		{
+			for (int j = 0; j < W; j++)
+			{
+				r = (Uint8) frame[i][j][0];
+		                g = (Uint8) frame[i][j][1];
+	       	                b = (Uint8) frame[i][j][2];
+				pixel = SDL_MapRGB(img -> format, r, g, b);
+				put_pixel(img, j, i, pixel);
+			}
+		}
+
+		//
+		
+		SDL_Surface *sub = FrameDifference(img, background);
+
+
+		// write difference frame to output
+		for (y=0 ; y<H; ++y) for (x=0 ; x<W; ++x)
+		{
+			pixel = get_pixel(sub, x, y);
+			SDL_GetRGB(pixel , img -> format, &r, &g, &b);
+			frame[y][x][0] = (unsigned char) r;
+		    	frame[y][x][1] = (unsigned char) g;
+			frame[y][x][2] = (unsigned char) b;
+		}
+
+		// Write this frame to the output pipe
+		fwrite(frame, 1, H*W*3, pipeout);
+
+		nbRead++;
+    	}
+
+	// Flush and close input and output pipes
+	fflush(pipein);
+	pclose(pipein);
+	fflush(pipeout);
+	pclose(pipeout);
 }
 
 
@@ -208,7 +209,10 @@ SDL_Surface *FrameDifference(SDL_Surface *img_1, SDL_Surface *img_2)
         Uint8 r_1, g_1, b_1;
         Uint8 r_2, g_2, b_2;
 
-        int threshold = 50;
+	int x_average = 0, y_average = 0;
+	int count = 0;
+
+        int threshold = 80;
 
         for (int i = 0; i < img_1 -> w; i++)
         {
@@ -225,6 +229,9 @@ SDL_Surface *FrameDifference(SDL_Surface *img_1, SDL_Surface *img_2)
                         if (d_Sq > threshold * threshold)
                         {
                                 put_pixel(sub, i, j, res_pixel);
+				x_average += i;
+				y_average += j;
+				count += 1;
                         }
 			else
 			{
@@ -233,6 +240,11 @@ SDL_Surface *FrameDifference(SDL_Surface *img_1, SDL_Surface *img_2)
                 }
         }
 
+	x_average = x_average / count;
+	y_average = y_average / count;
+
+
+	DrawFillCircle(sub, y_average, x_average, 30, SDL_MapRGB(sub -> format, 255, 0, 0));
+
         return sub;
 }
-

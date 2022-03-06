@@ -33,11 +33,17 @@ int main()
 	ReadVideo();
 
 
+
 //	printf("\n%s\n", Input_CMD("IMG_9234.mp4"));
 
 //	printf("\n%s\n", Output_CMD("IMG_9234.mp4", "output.mp4"));
 	//printf("heheheh");
 
+//	SDL_Surface *img = SDL_CreateRGBSurface(SDL_HWSURFACE, 500, 500, 32, 0, 0, 0, 0);
+
+//	DrawFillCircle(img, 300, 250, 50, SDL_MapRGB(img -> format, 0, 255, 0));
+
+//	SDL_SaveBMP(img, "cercle.bmp");
 	
 	return 0;
 }

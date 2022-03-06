@@ -64,6 +64,31 @@ void DrawLine(SDL_Surface *img, int x0, int y0, int x1, int y1, float wd, Uint32
 	}
 }
 
+// ici x ordonee ; y abscisse
+void DrawFillCircle(SDL_Surface *img, int center_x, int center_y, int r, Uint32 color)
+{
+	int x = 0;
+	int y = r;
+	int m = 5 - 4 * r;
+
+	while (x <= y)
+	{
+		DrawLine(img, center_x - y, center_y - x, center_x + y, center_y - x, 1, color);
+		DrawLine(img, center_x - y, center_y + x, center_x + y, center_y + x, 1, color);
+
+		if (m > 0)
+		{
+			DrawLine(img, center_x - x, center_y - y, center_x + x, center_y - y, 1, color);
+	                DrawLine(img, center_x - x, center_y + y, center_x + x, center_y + y, 1, color);
+			y -= 1;
+			m -= 8 * y;
+		}
+
+		x += 1;
+		m += 8 * x + 4;
+	}
+}
+
 void DrawRectangle(SDL_Surface *img, int x, int y, int h, int w, int lineWidth, Uint32 lineColor)
 {
 	// x -> h; y -> w
