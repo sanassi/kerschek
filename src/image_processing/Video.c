@@ -98,7 +98,9 @@ void ReadVideo()
 {
 	// Get Video Resolution
 	int H = 1, W = 1;
-	GetVideoResolution("IMG_9234.mp4", &H, &W);
+	GetVideoResolution("IMG_9236.mp4", &H, &W);
+
+	printf("\n%i  %i\n", H, W);
 
 	// Allocate a buffer to store one frame
 	unsigned char frame[H][W][3];
@@ -113,8 +115,8 @@ void ReadVideo()
 
 
     	// Open an input pipe from ffmpeg and an output pipe to a second instance of ffmpeg
-    	FILE *pipein = popen(Input_CMD("IMG_9234.mp4"), "r");
-    	FILE *pipeout = popen(Output_CMD("IMG_9234.mp4", "output.mp4"), "w");
+    	FILE *pipein = popen(Input_CMD("IMG_9236.mp4"), "r");
+    	FILE *pipeout = popen(Output_CMD("IMG_9236.mp4", "output.mp4"), "w");
 
 
     	// use the first frame as background image
@@ -142,7 +144,7 @@ void ReadVideo()
 		// Read a frame from the input pipe into the buffer
 		count = fread(frame, 1, H*W*3, pipein);
 		// If we didn't get a frame of video, we're probably at the end
-		if (count != H*W*3) break;
+		if (count != H * W * 3) break;
 
 		// Process this frame
 
@@ -168,7 +170,7 @@ void ReadVideo()
 
 
 		// write difference frame to output
-		for (y=0 ; y<H; ++y) for (x=0 ; x<W; ++x)
+		for (y=0 ; y<H; y++) for (x=0 ; x<W; x++)
 		{
 			pixel = get_pixel(sub, x, y);
 			SDL_GetRGB(pixel , img -> format, &r, &g, &b);
@@ -181,7 +183,9 @@ void ReadVideo()
 		fwrite(frame, 1, H*W*3, pipeout);
 
 		nbRead++;
+
     	}
+
 
 	// Flush and close input and output pipes
 	fflush(pipein);
@@ -209,8 +213,8 @@ SDL_Surface *FrameDifference(SDL_Surface *img_1, SDL_Surface *img_2)
         Uint8 r_1, g_1, b_1;
         Uint8 r_2, g_2, b_2;
 
-	int x_average = 0, y_average = 0;
-	int count = 0;
+//	float x_average = 0, y_average = 0;
+//	int count = 0;
 
         int threshold = 80;
 
@@ -229,9 +233,9 @@ SDL_Surface *FrameDifference(SDL_Surface *img_1, SDL_Surface *img_2)
                         if (d_Sq > threshold * threshold)
                         {
                                 put_pixel(sub, i, j, res_pixel);
-				x_average += i;
-				y_average += j;
-				count += 1;
+//				x_average += i;
+//				y_average += j;
+//				count += 1;
                         }
 			else
 			{
@@ -240,11 +244,11 @@ SDL_Surface *FrameDifference(SDL_Surface *img_1, SDL_Surface *img_2)
                 }
         }
 
-	x_average = x_average / count;
-	y_average = y_average / count;
+//	x_average = x_average / count;
+//	y_average = y_average / count;
 
 
-	DrawFillCircle(sub, y_average, x_average, 30, SDL_MapRGB(sub -> format, 255, 0, 0));
+	//DrawFillCircle(sub, (int) y_average, (int) x_average, 30, SDL_MapRGB(sub -> format, 255, 0, 0));
 
         return sub;
 }
