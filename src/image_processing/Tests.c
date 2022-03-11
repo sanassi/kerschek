@@ -20,30 +20,14 @@
 #include "PlateFromImage.h"
 
 
-int main()
+int main(int argc, char *argv[])
 {
-//	init_sdl();
-
-//	SDL_SaveBMP(FrameDifference(load_image("frame_1.png"), load_image("frame_2.png")), "sub.bmp");
-
-//	int h, w;
-//	GetVideoResolution("IMG_9234.mp4", &h, &w);
-
-//	printf("\nheight = %i\nwidth = %i\n", h, w);
-	ReadVideo();
+	if (argc != 2)
+		return 1;
 
 
+	ReadVideo(argv[1]);
 
-//	printf("\n%s\n", Input_CMD("IMG_9234.mp4"));
-
-//	printf("\n%s\n", Output_CMD("IMG_9234.mp4", "output.mp4"));
-	//printf("heheheh");
-
-//	SDL_Surface *img = SDL_CreateRGBSurface(SDL_HWSURFACE, 500, 500, 32, 0, 0, 0, 0);
-
-//	DrawFillCircle(img, 300, 250, 50, SDL_MapRGB(img -> format, 0, 255, 0));
-
-//	SDL_SaveBMP(img, "cercle.bmp");
 	
 	return 0;
 }
