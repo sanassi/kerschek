@@ -8,7 +8,7 @@
 #include <string.h>
 #include "Drawing.h"
 
-void ReadVideo();
+void ReadVideo(char *vid_path);
 
 int distSq(int x1, int y1, int z1, int x2, int y2, int z2);
 
