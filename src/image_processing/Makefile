@@ -3,7 +3,7 @@ CC=gcc
 CPPFLAGS= `pkg-config --cflags sdl` -MMD
 CFLAGS= -Wall -Wextra -Werror -std=c99 -O3
 LDFLAGS=
-LDLIBS= `pkg-config --libs sdl SDL_image` -lm 
+LDLIBS= `pkg-config --libs sdl SDL_image` -lm  
 
 SRC =  Tests.c PreProcessing.c SdlHelperFunctions.c Sobel.c Blur.c Rescaling.c Hough.c Drawing.c Morph.c Component.c Video.c PlateFromImage.c
 

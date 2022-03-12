@@ -25,52 +25,12 @@ void SaveComponentToBMP_2(struct Component *c, char *name, int offset)
 		put_pixel(img, (y + offset / 2), x + (offset / 2), blackPixel);
 	}
 
-	SDL_SaveBMP(NearestNeighbourScale(img, 28, 28), name);
+	//SDL_SaveBMP(NearestNeighbourScale(img, 28, 28), name);
 
 	SDL_SaveBMP(img, name);
-	free(img);
+	SDL_FreeSurface(img);
 }
 
-void SaveComponentToBMP(SDL_Surface *img, struct Component *c, char *name)
-{
-	Uint32 pixel;
-	//Uint8 r, g, b;
-
-	SDL_Surface *res = SDL_CreateRGBSurface(SDL_HWSURFACE, c -> width, c -> height, 32, 0, 0, 0, 0);
-
-	for (int i = c -> box_origin_x; i < res -> w + c -> box_origin_x; i++)
-	{
-		for (int j = c -> box_origin_y; j < res -> h + c -> box_origin_y; j++)
-		{
-			pixel = get_pixel(img, i, j);
-			put_pixel(res, i - c -> box_origin_x, j - c -> box_origin_y, pixel);
-		}
-	}
-	
-
-	SDL_Surface *tmp = SDL_CreateRGBSurface(SDL_HWSURFACE, res -> w + 40, res -> h + 40, 32, 255, 255, 255, 0);
-
-	for (int i = 0; i < tmp -> w; i++)
-	{
-		for (int j = 0; j < tmp -> h; j++)
-		{
-			put_pixel(tmp, i, j, SDL_MapRGB(img -> format, 255, 255, 255));
-		}
-	}
-	for (int i = 0; i < res -> w; i++)
-	{
-		for (int j = 0; j < res -> h; j++)
-		{
-			pixel = get_pixel(res, i, j);
-			put_pixel(tmp, i + 20, j + 20, pixel);
-		}
-	}
-
-
-	SDL_SaveBMP(NearestNeighbourScale(tmp, 28, 28), name);
-	free(res);
-	free(tmp);
-}
 
 struct Component *GetComponent(SDL_Surface *img, int x, int y)
 {

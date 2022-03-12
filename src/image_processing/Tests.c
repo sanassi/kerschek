@@ -19,15 +19,17 @@
 #include "Video.h"
 #include "PlateFromImage.h"
 
-
 int main(int argc, char *argv[])
 {
 	if (argc != 2)
 		return 1;
-
-
+/*
+	char *plate = GetPlateFromImage(argv[1], 2);	
+	printf("%s\n", plate);
+*/
 	ReadVideo(argv[1]);
 
 	
 	return 0;
 }
+

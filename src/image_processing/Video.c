@@ -9,9 +9,11 @@ void GetVideoResolution(char *vid_path, int *height, int *width)
 	// use pipe to get resolutoin from stdout and store in string
 	// ffpropbe displays result in stdout
 	char res[BUF_SIZE];
-	int stdout_bk;
+	int stdout_bk = 0;
 	int pipefd[2];
-	pipe(pipefd);
+	int e = pipe(pipefd);
+	if (e == -1)
+		printf("err");
 
 	dup2(pipefd[1], STDOUT_FILENO);
 	fflush(stdout);
@@ -123,7 +125,11 @@ void ReadVideo(char *vid_path)
 
 
     	// use the first frame as background image
-	fread(frame, 1, H*W*3, pipein);
+	count = fread(frame, 1, H*W*3, pipein);
+	fseek(pipein, 0, SEEK_SET);
+
+	if (count == -1)
+		printf("err");
     	SDL_Surface *background = SDL_CreateRGBSurface(SDL_HWSURFACE, W, H, 32, 0, 0, 0, 0);
 
     	for (int i = 0; i < H; i++)
@@ -253,7 +259,7 @@ SDL_Surface *FrameDifference(SDL_Surface *img_1, SDL_Surface *img_2)
 
 
 	if (y_average >= 0 && y_average < sub ->h && x_average >= 0 && x_average < sub -> w)
-		DrawFillCircle(sub, (int) y_average, (int) x_average, 30, SDL_MapRGB(sub -> format, 255, 0, 0));
+		DrawFillCircle(sub, (int) y_average, (int) x_average, 10, SDL_MapRGB(sub -> format, 255, 0, 0));
 
         return sub;
 }

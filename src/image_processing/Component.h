@@ -38,7 +38,6 @@ struct Component
 
 struct Component *GetComponent(SDL_Surface *img, int x, int y);
 
-void SaveComponentToBMP(SDL_Surface *img, struct Component *c, char *name);
 
 void free_component(struct Component *c);
 
