@@ -79,7 +79,7 @@ char *Input_CMD(char *vid_path)
 char *Output_CMD(char *vid_path, char *vid_output_path)
 {
 	int h, w;
-	GetVideoResolution(vid_path, &h, &w);
+	GetVideoResolution(vid_path, &w, &h);
 	char x[] = "x";
 
 	char *res;
@@ -102,7 +102,7 @@ void ReadVideo(char *vid_path)
 {
 	// Get Video Resolution
 	int H = 1, W = 1;
-	GetVideoResolution(vid_path, &H, &W);
+	GetVideoResolution(vid_path, &W, &H);
 
 	printf("\n%i  %i\n", H, W);
 
@@ -125,8 +125,9 @@ void ReadVideo(char *vid_path)
 
 
     	// use the first frame as background image
-	count = fread(frame, 1, H*W*3, pipein);
-	fseek(pipein, 0, SEEK_SET);
+	for (int i = 0; i < 10; i++)
+		count = fread(frame, 1, H*W*3, pipein);
+	//fseek(pipein, 0, SEEK_SET);
 
 	if (count == -1)
 		printf("err");
@@ -226,7 +227,7 @@ SDL_Surface *FrameDifference(SDL_Surface *img_1, SDL_Surface *img_2)
 	float x_average = 0, y_average = 0;
 	int count = 0;
 
-        int threshold = 80;
+        int threshold = 100;
 
         for (int i = 0; i < img_1 -> w; i++)
         {
