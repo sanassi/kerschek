@@ -2,9 +2,9 @@ CC = gcc
 CFLAGS = -Wall -Werror -Wextra -pedantic -std=c99 -O3
 CPPFLAGS= `pkg-config --cflags sdl` -MMD
 LDLIBS= `pkg-config --libs sdl SDL_image` -lm
-TARGET = Tests
+TARGET = kerschek
 
-MAIN = src/image_processing/Tests.o
+MAIN = src/main.o
 OBJ = $(patsubst %.c, %.o, $(wildcard src/*/*.c))
 
 HEADERS = $(wildcard src/*/*.h)
