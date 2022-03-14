@@ -116,11 +116,12 @@ void ReadVideo(char *vid_path)
     	Uint32 pixel;
     	Uint8 r, g, b;
 
+	SDL_Surface *prev;
+
 
 	// Open an input pipe from ffmpeg and an output pipe to a second instance of ffmpeg
 
 	FILE *pipein = popen(Input_CMD(vid_path), "r");
-
         FILE *pipeout = popen(Output_CMD(vid_path, "output.mp4"), "w");
 
 
@@ -146,7 +147,7 @@ void ReadVideo(char *vid_path)
     	}
     	SDL_SaveBMP(background, "back.bmp");
 
-
+	prev = copy_image(background);
 
     	// Process video frames
     	while(1)
@@ -176,7 +177,7 @@ void ReadVideo(char *vid_path)
 
 		//
 		
-		SDL_Surface *sub = FrameDifference(img, background);
+		SDL_Surface *sub = FrameDifference(prev, img);
 
 
 		// write difference frame to output
@@ -192,6 +193,8 @@ void ReadVideo(char *vid_path)
 		// Write this frame to the output pipe
 		count = fwrite(frame, 1, H*W*3, pipeout);
 
+		prev = copy_image(img);
+
 		if (count != H * W * 3)
 			break;
 
@@ -203,6 +206,8 @@ void ReadVideo(char *vid_path)
 	pclose(pipein);
 	fflush(pipeout);
 	pclose(pipeout);
+
+	SDL_FreeSurface(background);
 }
 
 
@@ -224,6 +229,7 @@ SDL_Surface *FrameDifference(SDL_Surface *img_1, SDL_Surface *img_2)
         Uint8 r_1, g_1, b_1;
         Uint8 r_2, g_2, b_2;
 
+	/*find the "center" of different pixels*/
 	float x_average = 0, y_average = 0;
 	int count = 0;
 
@@ -239,6 +245,7 @@ SDL_Surface *FrameDifference(SDL_Surface *img_1, SDL_Surface *img_2)
                         SDL_GetRGB(pixel_1, img_1 -> format, &r_1, &g_1, &b_1);
                         SDL_GetRGB(pixel_2, img_2 -> format, &r_2, &g_2, &b_2);
 
+			/*compute squared distance between colors*/
                         int d_Sq = distSq(r_1, b_1, g_1, r_2, g_2, b_2);
 
                         if (d_Sq > threshold * threshold)
@@ -259,8 +266,8 @@ SDL_Surface *FrameDifference(SDL_Surface *img_1, SDL_Surface *img_2)
 	y_average = y_average / count;
 
 
-	if (y_average >= 0 && y_average < sub ->h && x_average >= 0 && x_average < sub -> w)
-		DrawFillCircle(sub, (int) y_average, (int) x_average, 10, SDL_MapRGB(sub -> format, 255, 0, 0));
+	if (y_average >= 0 && y_average < sub -> h && x_average >= 0 && x_average < sub -> w)
+		DrawFillCircle(sub, (int) y_average, (int) x_average, 20, SDL_MapRGB(sub -> format, 0, 255, 0));
 
         return sub;
 }

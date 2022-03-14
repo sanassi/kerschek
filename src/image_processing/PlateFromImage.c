@@ -54,7 +54,6 @@ char *GetPlateFromImage(char *path, int angle)
 	
 	/*extract the components on copy of img (not processed)*/
 	Binarize(img_copy);
-	
 	for (int i = 0; i < (int) current_cluster -> size; i++)
 	{
 		c = &components[*(current_cluster -> data + i)]; // get component from id
