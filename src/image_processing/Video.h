@@ -7,6 +7,7 @@
 #include <unistd.h>
 #include <string.h>
 #include "Drawing.h"
+#include "Component.h"
 
 void ReadVideo(char *vid_path);
 

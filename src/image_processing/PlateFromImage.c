@@ -68,7 +68,7 @@ char *GetPlateFromImage(char *path, int angle)
 			printf("error : asprintf()");
 		/*-----------------------------------------*/
 
-		SaveComponentToBMP_2(c, res_path, 40);
+		SaveComponentToBMP_2(c, res_path, 100);
 
 		/* use gocr to recog characters */
 		// why fork() ? execlp stops the current process

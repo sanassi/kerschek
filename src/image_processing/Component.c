@@ -195,7 +195,6 @@ struct Component *GetComponents(SDL_Surface *img,
 
 			if (r == 0 && count < MAX_NB)
 			{
-
 				struct Component *c = GetComponent(img, i, j);
 
 				// check component size and shape
@@ -245,6 +244,21 @@ double AngleBetweenComponents(struct Component *c1, struct Component *c2, struct
 
 }
 
+double AngleBetweenComponents_2(struct Component *c1, struct Component *c2, struct Component *c3)
+{
+        // computes angle between vectors c1 -> c2 and c1 -> c3
+        // plate numbers are usually colinear
+
+        int p1_x = c1 -> bottommost_x, p1_y = c1 -> bottommost_y;
+        int p2_x = c2 -> bottommost_x, p2_y = c2 -> bottommost_y;
+        int p3_x = c3 -> bottommost_x, p3_y = c3 -> bottommost_y;
+
+        double angle = (atan2(p3_y - p1_y, p3_x - p1_x) - atan2(p2_y - p1_y, p2_x - p1_x)) * 180 / M_PI;
+
+        return angle;
+
+}
+
 struct vector *GetColinearComponents(struct Component *components, int *len, int min_angle)
 {
         struct vector *current_cluster = vector_new();
@@ -257,11 +271,12 @@ struct vector *GetColinearComponents(struct Component *components, int *len, int
                         {
                                 double angle = AngleBetweenComponents(&components[i], &components[j], &components[k]);
 
-                                if (fabs(angle) < min_angle)
+				double angle_2 =  AngleBetweenComponents_2(&components[i], &components[j], &components[k]);
+                                if (fabs(angle) < min_angle && fabs(angle_2) < 5)
                                 {
                                         vector_push(current_cluster, components[k].id);
-                                        printf("%f\n", angle);
-                                        printf("colinear !\n");
+                                        //printf("%f\n", angle);
+                                        //printf("colinear !\n");
 
                                         if (current_cluster -> size == 5)
                                                 break;

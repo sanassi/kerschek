@@ -21,12 +21,23 @@
 
 int main(int argc, char *argv[])
 {
-	if (argc != 2)
+	if (argc < 2)
 		return 1;
-/*
-	char *plate = GetPlateFromImage(argv[1], 2);	
-	printf("%s\n", plate);
-*/
+
+/*	
+	int angle = 3;
+
+	for (int i = 1; i < argc; i++)
+	{
+		char *plate = GetPlateFromImage(argv[i], angle);
+        	printf("\n%s\n", plate);
+		getchar();
+	}
+*/	
+//	char *plate = GetPlateFromImage(argv[1], 2);	
+	//printf("%s\n", plate);
+
+
 	ReadVideo(argv[1]);
 
 	

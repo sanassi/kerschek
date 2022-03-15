@@ -1,5 +1,5 @@
 #include "Video.h"
-
+#include <limits.h>
 #include <sys/wait.h>
 
 void GetVideoResolution(char *vid_path, int *height, int *width)
@@ -64,8 +64,6 @@ char *Input_CMD(char *vid_path)
 {
 	char arg_1[] = "ffmpeg -i ";
 	char arg_2[] = " -f image2pipe -vcodec rawvideo -pix_fmt rgb24 -";
-
-	//int len = strlen(vid_path) + strlen(arg_2) + strlen(arg_1);
 	
 	// build command
 	char *res;
@@ -102,7 +100,7 @@ void ReadVideo(char *vid_path)
 {
 	// Get Video Resolution
 	int H = 1, W = 1;
-	GetVideoResolution(vid_path, &W, &H);
+	GetVideoResolution(vid_path, &H, &W);
 
 	printf("\n%i  %i\n", H, W);
 
@@ -118,7 +116,6 @@ void ReadVideo(char *vid_path)
 
 	SDL_Surface *prev;
 
-
 	// Open an input pipe from ffmpeg and an output pipe to a second instance of ffmpeg
 
 	FILE *pipein = popen(Input_CMD(vid_path), "r");
@@ -133,7 +130,7 @@ void ReadVideo(char *vid_path)
 	if (count == -1)
 		printf("err");
     	SDL_Surface *background = SDL_CreateRGBSurface(SDL_HWSURFACE, W, H, 32, 0, 0, 0, 0);
-
+	Uint8 color = SDL_MapRGB(background -> format, 255, 0, 0);
     	for (int i = 0; i < H; i++)
     	{
     		for (int j = 0; j < W; j++)
@@ -179,6 +176,16 @@ void ReadVideo(char *vid_path)
 		
 		SDL_Surface *sub = FrameDifference(prev, img);
 
+		int len;
+		struct Component *components = GetComponents(sub, &len, INT_MAX, INT_MAX, 50, 50, 200, DBL_MAX, 0);
+
+
+		for (int i = 0; i < len; i++)
+		{
+			struct Component *c = &components[i]; // get component from id
+                	DrawRectangle(sub, c -> box_origin_y, c -> box_origin_x, c -> height,c ->  width, 4, color);
+		}
+
 
 		// write difference frame to output
 		for (y=0 ; y<H; y++) for (x=0 ; x<W; x++)
@@ -207,6 +214,7 @@ void ReadVideo(char *vid_path)
 	fflush(pipeout);
 	pclose(pipeout);
 
+	SDL_FreeSurface(prev);
 	SDL_FreeSurface(background);
 }
 
@@ -224,7 +232,7 @@ SDL_Surface *FrameDifference(SDL_Surface *img_1, SDL_Surface *img_2)
         Uint32 pixel_1;
         Uint32 pixel_2;
 
-        Uint32 res_pixel = SDL_MapRGB(img_1 -> format, 255, 255, 255);
+        Uint32 res_pixel = SDL_MapRGB(img_1 -> format, 0, 0, 0);
 
         Uint8 r_1, g_1, b_1;
         Uint8 r_2, g_2, b_2;
@@ -232,8 +240,7 @@ SDL_Surface *FrameDifference(SDL_Surface *img_1, SDL_Surface *img_2)
 	/*find the "center" of different pixels*/
 	float x_average = 0, y_average = 0;
 	int count = 0;
-
-        int threshold = 100;
+        int threshold = 70;
 
         for (int i = 0; i < img_1 -> w; i++)
         {
@@ -257,7 +264,7 @@ SDL_Surface *FrameDifference(SDL_Surface *img_1, SDL_Surface *img_2)
                         }
 			else
 			{
-				put_pixel(sub, i, j, SDL_MapRGB(img_1 -> format, 0, 0, 0));
+				put_pixel(sub, i, j, SDL_MapRGB(img_1 -> format, 255, 255, 255));
 			}
                 }
         }
@@ -266,8 +273,8 @@ SDL_Surface *FrameDifference(SDL_Surface *img_1, SDL_Surface *img_2)
 	y_average = y_average / count;
 
 
-	if (y_average >= 0 && y_average < sub -> h && x_average >= 0 && x_average < sub -> w)
-		DrawFillCircle(sub, (int) y_average, (int) x_average, 20, SDL_MapRGB(sub -> format, 0, 255, 0));
+//	if (y_average >= 0 && y_average < sub -> h && x_average >= 0 && x_average < sub -> w)
+//		DrawFillCircle(sub, (int) y_average, (int) x_average, 20, SDL_MapRGB(sub -> format, 0, 255, 0));
 
         return sub;
 }
