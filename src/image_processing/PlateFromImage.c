@@ -5,14 +5,14 @@ char *GetPlateFromImage(char *path, int angle)
 {
 	init_sdl();
 	SDL_Surface *img = load_image(path);
-	SDL_Surface *img_copy = load_image(path);
+	//SDL_Surface *img_copy = load_image(path);
 	SDL_Surface *res = load_image(path);
 
 
 	int max_h = img -> h / 2, min_h = 30;
         int max_w = img -> w / 3, min_w = 10;
-        int min_size = 50;
-        float max_ratio = 1, min_ratio = 0;
+        int min_size = 10;
+        float max_ratio = 1, min_ratio = 0.2;
 
 
         PreProcess(img, 3, 0, 0);
@@ -53,11 +53,11 @@ char *GetPlateFromImage(char *path, int angle)
 	struct Component *c;
 	
 	/*extract the components on copy of img (not processed)*/
-	Binarize(img_copy);
+	//PreProcess(img_copy, 3, 0, 0);
 	for (int i = 0; i < (int) current_cluster -> size; i++)
 	{
 		c = &components[*(current_cluster -> data + i)]; // get component from id
-		DrawRectangle(res, c -> box_origin_y, c -> box_origin_x, c -> height,c ->  width, 4, color);
+		DrawRectangle(res, c -> box_origin_y, c -> box_origin_x, c -> height,c ->  width, 5, color);
 
 		/*build path to save bitmap*/
 		char name[3];
@@ -105,7 +105,7 @@ char *GetPlateFromImage(char *path, int angle)
 
 	/*free*/
 	SDL_FreeSurface(img);
-	SDL_FreeSurface(img_copy);
+	//SDL_FreeSurface(img_copy);
 	SDL_FreeSurface(res);
 
 	vector_free(current_cluster);
