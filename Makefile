@@ -1,8 +1,8 @@
 CC = gcc
 CFLAGS = -Wall -Werror -Wextra -pedantic -std=c99 -O3
-CPPFLAGS= `pkg-config --cflags sdl` -MMD
-LDLIBS= `pkg-config --libs sdl SDL_image` -lm
-TARGET = kerschek
+CPPFLAGS= `pkg-config --cflags gtk+-3.0  sdl` -MMD
+LDLIBS= `pkg-config --libs gtk+-3.0 sdl SDL_image` -lm
+TARGET = src/bin/kerschek
 
 MAIN = src/main.o
 OBJ = $(patsubst %.c, %.o, $(wildcard src/*/*.c))
