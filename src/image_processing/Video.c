@@ -77,7 +77,7 @@ char *Input_CMD(char *vid_path)
 char *Output_CMD(char *vid_path, char *vid_output_path)
 {
 	int h, w;
-	GetVideoResolution(vid_path, &w, &h);
+	GetVideoResolution(vid_path, &h, &w);
 	char x[] = "x";
 
 	char *res;
@@ -95,6 +95,21 @@ char *Output_CMD(char *vid_path, char *vid_output_path)
 	return res;
 }
 
+/*
+ * ReadVideo() : open video and read frame through a pipe
+ *
+ * get video resolution with ffprobe
+ *
+ * save first frame
+ * for each frame : 
+ * 	1 - save previous frame
+ * 	2 - grayscale
+ *	3 - compute differece frame between current and prev
+ *	4 - extract components on difference image (motion change)
+ *	5 - draw bouding box around components
+ *	6 - 
+ *
+ * */
 
 void ReadVideo(char *vid_path)
 {
@@ -113,7 +128,6 @@ void ReadVideo(char *vid_path)
 
     	Uint32 pixel;
     	Uint8 r, g, b;
-
 	SDL_Surface *prev;
 
 	// Open an input pipe from ffmpeg and an output pipe to a second instance of ffmpeg
@@ -123,14 +137,16 @@ void ReadVideo(char *vid_path)
 
 
     	// use the first frame as background image
-	for (int i = 0; i < 10; i++)
+	for (int i = 0; i < 1; i++)
 		count = fread(frame, 1, H*W*3, pipein);
 	//fseek(pipein, 0, SEEK_SET);
 
 	if (count == -1)
 		printf("err");
     	SDL_Surface *background = SDL_CreateRGBSurface(SDL_HWSURFACE, W, H, 32, 0, 0, 0, 0);
-	Uint8 color = SDL_MapRGB(background -> format, 255, 0, 0);
+	Uint8 color = SDL_MapRGB(background -> format, 0, 255, 0);
+
+	/*convert frame to sdl_surface (easier to use)*/
     	for (int i = 0; i < H; i++)
     	{
     		for (int j = 0; j < W; j++)
@@ -142,21 +158,31 @@ void ReadVideo(char *vid_path)
 			put_pixel(background, j, i, pixel);
 		}
     	}
-    	SDL_SaveBMP(background, "back.bmp");
 
+	Grayscale(background);
+    	SDL_SaveBMP(background, "back.bmp");
 	prev = copy_image(background);
+	int saved = 0;
 
     	// Process video frames
     	while(1)
     	{
 		// Read a frame from the input pipe into the buffer
 		count = fread(frame, 1, H*W*3, pipein);
+		nbRead++;
+
+		/*read 1 frame skip 5*/
+		if (nbRead % 5 != 0)
+			continue;
+
 		// If we didn't get a frame of video, we're probably at the end
-		if (count != H * W * 3) break;
+		if (count != H * W * 3) 
+			break;
 
 		// Process this frame
 
-		SDL_Surface *img = SDL_CreateRGBSurface(SDL_HWSURFACE, W, H, 32, 0, 0, 0, 0);;
+		SDL_Surface *img = SDL_CreateRGBSurface(SDL_HWSURFACE, W, H, 32, 0, 0, 0, 0);
+		Grayscale(img);
 
 
 		// convert frame to sdl_surface
@@ -172,40 +198,73 @@ void ReadVideo(char *vid_path)
 			}
 		}
 
+		/* copy original frame to write in output pipe*/
+		SDL_Surface *frame_copy = copy_image(img);
 		//
 		
+		/* image differencing */
 		SDL_Surface *sub = FrameDifference(prev, img);
 
+		/*extract large components*/
 		int len;
-		struct Component *components = GetComponents(sub, &len, INT_MAX, INT_MAX, 50, 50, 200, DBL_MAX, 0);
+		struct Component *components = GetComponents(sub, 
+				&len, 
+				INT_MAX, 
+				INT_MAX, 
+				70, 
+				70, 
+				200, 
+				DBL_MAX, 
+				1);
 
+		color = SDL_MapRGB(img -> format, 0, 255, 255);
 
+		/*draw bounding boxes around components and save only one near the center
+		 *boxes drawn in output
+		 * */
 		for (int i = 0; i < len; i++)
 		{
 			struct Component *c = &components[i]; // get component from id
-                	DrawRectangle(sub, c -> box_origin_y, c -> box_origin_x, c -> height,c ->  width, 4, color);
+                	DrawRectangle(frame_copy, 
+					c -> box_origin_y, 
+					c -> box_origin_x, 
+					c -> height,
+					c ->  width, 
+					4, 
+					color);
+
+			if (saved == 0 && 
+					c -> points -> size > 200 && 
+					abs((c -> box_origin_x + c -> width / 2) - W / 2) < 100)
+			{
+				saved = 1;
+				SDL_SaveBMP(img, "mvnt.bmp");
+			}
 		}
 
 
-		// write difference frame to output
+		/* write difference frame to output */
 		for (y=0 ; y<H; y++) for (x=0 ; x<W; x++)
 		{
-			pixel = get_pixel(sub, x, y);
+			pixel = get_pixel(frame_copy, x, y);
 			SDL_GetRGB(pixel , img -> format, &r, &g, &b);
 			frame[y][x][0] = (unsigned char) r;
 		    	frame[y][x][1] = (unsigned char) g;
 			frame[y][x][2] = (unsigned char) b;
 		}
 
-		// Write this frame to the output pipe
+		/*write frame to output pipe*/
 		count = fwrite(frame, 1, H*W*3, pipeout);
 
+		/*free difference image*/
+		SDL_FreeSurface(sub);
+
+		/*save previous frame*/
 		prev = copy_image(img);
 
+		/*make sure that we wrote all pixels to output*/
 		if (count != H * W * 3)
 			break;
-
-		nbRead++;
     	}
 
 	// Flush and close input and output pipes
@@ -219,10 +278,13 @@ void ReadVideo(char *vid_path)
 }
 
 
+/*compute squared distance between points in 3 dimensional space (here : color space)*/
 int distSq(int x1, int y1, int z1, int x2, int y2, int z2)
 {
         return (x2 - x1) * (x2 - x1) + (y2 - y1) * (y2 - y1) + (z2 - z1) * (z2 - z1);
 }
+
+
 
 SDL_Surface *FrameDifference(SDL_Surface *img_1, SDL_Surface *img_2)
 {
@@ -234,6 +296,7 @@ SDL_Surface *FrameDifference(SDL_Surface *img_1, SDL_Surface *img_2)
 
         Uint32 res_pixel = SDL_MapRGB(img_1 -> format, 0, 0, 0);
 
+	/*channels for each image*/
         Uint8 r_1, g_1, b_1;
         Uint8 r_2, g_2, b_2;
 
@@ -255,6 +318,7 @@ SDL_Surface *FrameDifference(SDL_Surface *img_1, SDL_Surface *img_2)
 			/*compute squared distance between colors*/
                         int d_Sq = distSq(r_1, b_1, g_1, r_2, g_2, b_2);
 
+			
                         if (d_Sq > threshold * threshold)
                         {
                                 put_pixel(sub, i, j, res_pixel);
@@ -264,6 +328,7 @@ SDL_Surface *FrameDifference(SDL_Surface *img_1, SDL_Surface *img_2)
                         }
 			else
 			{
+				/* no important color change, so put white pixel */
 				put_pixel(sub, i, j, SDL_MapRGB(img_1 -> format, 255, 255, 255));
 			}
                 }
