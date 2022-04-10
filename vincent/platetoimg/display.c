@@ -61,7 +61,7 @@ int main(int argc, char *argv[])
   SDL_Surface *rect;
   SDL_Surface *PlateEmpty;
   SDL_Surface *image_surface;
-  int x = 250;
+  int x = 350;
   int y = 100; 
   init_sdl();
 
@@ -80,11 +80,31 @@ int main(int argc, char *argv[])
   //printf("plate len: %lu\n", l);
   //printf("%d\n", p[6]);
 
+  int tiret = 0;
 
-  for(size_t i = 0; i <= 7; i++)
+  for(size_t i = 0; i < 7; i++)
     {
-       if (p[i] == '1')
+      printf("tiret = %i\n", tiret);
+      if (tiret == 2 || tiret == 5)
 	{
+	  printf("ATTENTION TIRET\n");
+	  image_surface = load_image(PlateName);
+	  rect = load_image("img/toprint/tiret.bmp");
+
+	  position.x = x;
+	  position.y = y;
+
+	  SDL_BlitSurface(rect, NULL, image_surface, &position);
+	  SDL_SaveBMP(image_surface, PlateName);
+	  SDL_FreeSurface(rect);
+	  SDL_FreeSurface(image_surface);
+
+	  x += 150;
+	}
+      
+      if (p[i] == '1')
+	{
+	  
 	  image_surface = load_image(PlateName);
 	  rect = load_image("img/toprint/1.bmp");
 
@@ -98,7 +118,7 @@ int main(int argc, char *argv[])
 
 	}
 
-        else if (p[i] == '2')
+      else if (p[i] == '2')
 	{
 	  image_surface = load_image(PlateName);
 	  rect = load_image("img/toprint/2.bmp");
@@ -217,6 +237,7 @@ int main(int argc, char *argv[])
 
       else
 	{
+	  printf("c blanc");
 	  image_surface = load_image(PlateName);
 	  rect = load_image("img/toprint/empty.bmp");
 
@@ -229,7 +250,9 @@ int main(int argc, char *argv[])
 	  SDL_FreeSurface(image_surface);
 
 	}
-	  x += 150;
+      printf("Lettre : %c\n", p[i]);
+      x += 150;
+      tiret += 1;
     }
   SDL_FreeSurface(PlateEmpty);
 
