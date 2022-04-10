@@ -36,8 +36,11 @@ struct Component
 	struct vector *points; // pixel points of the component
 };
 
+#define MAX_LEN 1000
+
 struct Component *GetComponent(SDL_Surface *img, int x, int y);
 
+struct Component *MergeComponents(struct Component *c1, struct Component *c2);
 
 void free_component(struct Component *c);
 
@@ -55,5 +58,7 @@ struct Component *GetComponents(SDL_Surface *img,
 double AngleBetweenComponents(struct Component *c1, struct Component *c2, struct Component *c3);
 
 struct vector *GetColinearComponents(struct Component *components, int *len, int min_angle);
+
+int Overlap(struct Component *c1, struct Component *c2);
 
 #endif

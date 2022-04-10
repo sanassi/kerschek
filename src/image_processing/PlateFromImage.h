@@ -21,6 +21,10 @@
 #include <sys/wait.h>
 #include "Video.h"
 
+#include <sys/wait.h>
+#include <sys/types.h>
+#include <sys/stat.h>
+
 char *GetPlateFromImage(char *path, int angle);
 
 int PlateIsOk(char *s);

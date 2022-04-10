@@ -178,9 +178,9 @@ struct Component *GetComponents(SDL_Surface *img,
 	Uint32 pixel;
 	Uint8 r, g, b;
 
-	int MAX_NB = 100;
+	//int MAX_NB = 100;
 
-	struct Component *components = malloc(MAX_NB * sizeof(struct Component)); // array of components : TODO : find a way to get adjustable size
+	struct Component *components = malloc(MAX_LEN * sizeof(struct Component)); // array of components : TODO : find a way to get adjustable size
 
 	int count = 0; // index to loop over components array
 
@@ -193,7 +193,7 @@ struct Component *GetComponents(SDL_Surface *img,
 			pixel = get_pixel(img, i, j);
 			SDL_GetRGB(pixel, img -> format, &r, &g, &b);
 
-			if (r == 0 && count < MAX_NB)
+			if (r == 0 && count < MAX_LEN)
 			{
 				struct Component *c = GetComponent(img, i, j);
 
@@ -210,7 +210,13 @@ struct Component *GetComponents(SDL_Surface *img,
 					{
 						components[count] = *c;
 
-						DrawRectangle(img_copy, c -> box_origin_y, c -> box_origin_x, c -> height,c ->  width, 4, color);
+						DrawRectangle(img_copy, 
+								c -> box_origin_y, 
+								c -> box_origin_x, 
+								c -> height, 
+								c ->  width, 
+								4, 
+								color);
 						
 						c -> id = count;
 						count++;
@@ -331,6 +337,89 @@ void SortComponentVector(struct vector *v, struct Component *components, int len
         }
 }
 
+int min(int x, int y)
+{
+	return x < y ? x : y;
+}
+
+int max(int x, int y)
+{
+	return x > y ? x : y;
+}
+
+struct Component *MergeComponents(struct Component *c1, struct Component *c2)
+{
+	struct Component *c = malloc(sizeof(struct Component));
+	c -> points = vector_new();
+
+	c -> box_origin_x = min(c1 -> box_origin_x, c2 -> box_origin_x);
+	c -> box_origin_y = min(c1 -> box_origin_y, c2 -> box_origin_y);
+
+	c -> rightmost_x = max(c1 -> rightmost_x, c2 -> rightmost_x);
+	c -> rightmost_y = max(c1 -> rightmost_y, c2 -> rightmost_y);
+
+	c -> leftmost_x = min(c1 -> leftmost_x, c2 -> leftmost_x);
+        c -> leftmost_y = min(c1 -> leftmost_y, c2 -> leftmost_y);
+
+	c -> topmost_x = min(c1 -> topmost_x, c2 -> topmost_x);
+        c -> topmost_y = min(c1 -> topmost_y, c2 -> topmost_y);
+
+	c -> bottommost_x = max(c1 -> bottommost_x, c2 -> bottommost_x);
+        c -> bottommost_y = max(c1 -> bottommost_y, c2 -> bottommost_y);
+
+
+	c ->  height = c -> bottommost_y - c -> topmost_y;
+        c ->  width = c -> rightmost_x - c -> leftmost_x;
+	
+
+	for (size_t i = 0; i < c1 -> points -> size; i++)
+	{
+		vector_push(c -> points, (c1 -> points -> data)[i]);
+	}
+
+	for (size_t i = 0; i < c2 -> points -> size; i++)
+	{
+		vector_push(c -> points, (c2 -> points -> data)[i]);
+	}
+
+	return c;
+
+}
+
+int Overlap(struct Component *c1, struct Component *c2)
+{
+	int c1_x1, c1_y1;
+	int c1_x2, c1_y2;
+
+	int c2_x1, c2_y1;
+        int c2_x2, c2_y2;
+
+	c1_x1 = c1 -> box_origin_x;
+	c1_y1 = c1 -> box_origin_y;
+
+	c1_x2 = c1 -> box_origin_x + c1 -> width;
+	c1_y2 = c1 -> box_origin_y + c1 -> height;
+
+	c2_x1 = c2 -> box_origin_x;
+        c2_y1 = c2 -> box_origin_y;
+
+        c2_x2 = c2 -> box_origin_x + c2 -> width;
+        c2_y2 = c2 -> box_origin_y + c2 -> height;
+
+	if (!(c1_x1 < c2_x2))
+		return 0;
+
+	if (!(c1_x2 > c2_x1))
+		return 0;
+
+	if (!(c1_y1 < c2_y2))
+		return 0;
+
+	if (!(c1_y2 > c2_y1))
+		return 0;
+
+	return 1;
+}
 
 void free_component(struct Component *c)
 {

@@ -1,5 +1,15 @@
 #include "PlateFromImage.h"
 
+void MakeDir(char *dirName)
+{
+        struct stat st = {0};
+
+        if (stat(dirName, &st) == -1)
+        {
+                mkdir(dirName, 0700);
+        }
+}
+
 // TODO : clean up
 char *GetPlateFromImage(char *path, int angle)
 {
@@ -51,6 +61,9 @@ char *GetPlateFromImage(char *path, int angle)
 	Uint8 color = SDL_MapRGB(img -> format, 255, 0, 0);
 	
 	struct Component *c;
+
+	/*create folder to store components in*/
+	MakeDir("components");
 	
 	/*extract the components on copy of img (not processed)*/
 	//PreProcess(img_copy, 3, 0, 0);
@@ -59,7 +72,7 @@ char *GetPlateFromImage(char *path, int angle)
 		c = &components[*(current_cluster -> data + i)]; // get component from id
 		DrawRectangle(res, c -> box_origin_y, c -> box_origin_x, c -> height,c ->  width, 5, color);
 
-		/*build path to save bitmap*/
+		/*build filename to save bitmap*/
 		char name[3];
                 sprintf(name, "%hu", (short) i);
                 char *res_path;
@@ -114,6 +127,7 @@ char *GetPlateFromImage(char *path, int angle)
 
 	return plate;
 }
+
 
 int PlateIsOk(char *s)
 {

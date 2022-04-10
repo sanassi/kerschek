@@ -2,6 +2,7 @@
 #include <limits.h>
 #include <sys/wait.h>
 
+
 void GetVideoResolution(char *vid_path, int *height, int *width)
 {
 	int BUF_SIZE = 10;
@@ -123,8 +124,13 @@ void ReadVideo(char *vid_path)
 	unsigned char frame[H][W][3];
 
     	int x, y, count;
-    	int nbRead = 0;
+    	int nbRead = 1;
 
+	struct Component null_c;
+        null_c.id = -1;
+	null_c.box_origin_x = -1;
+	null_c.box_origin_y = -1;
+	
 
     	Uint32 pixel;
     	Uint8 r, g, b;
@@ -200,7 +206,6 @@ void ReadVideo(char *vid_path)
 
 		/* copy original frame to write in output pipe*/
 		SDL_Surface *frame_copy = copy_image(img);
-		//
 		
 		/* image differencing */
 		SDL_Surface *sub = FrameDifference(prev, img);
@@ -211,13 +216,49 @@ void ReadVideo(char *vid_path)
 				&len, 
 				INT_MAX, 
 				INT_MAX, 
-				70, 
-				70, 
-				200, 
+				30, 
+				30, 
+				85, 
 				DBL_MAX, 
 				1);
 
 		color = SDL_MapRGB(img -> format, 0, 255, 255);
+
+
+		/*loop through component array and check if overlap
+		 *if overlap : merge components and remove them
+		 then append merge to end of component array
+		 * */
+
+		// append merged component to the end of
+		// component array
+		// TODO : fix :/
+		//int l = len;
+		for (int i = 0; i < len; i++)
+		{
+			for (int j = 0; j < len; j++)
+			{
+				if (i == j)
+					continue;
+
+				if (Overlap(&components[i], &components[j]) == 1)
+        			{
+                			struct Component *merge = MergeComponents(&components[i], 
+							&components[j]);
+
+					//if (l < MAX_LEN)
+					{
+                				components[i] = *merge;
+                				components[j].id = -1;
+                				//components[l] = *merge;
+                				//l += 1;
+					}
+        			}
+			}
+		}
+
+		// pb
+		//len = l;
 
 		/*draw bounding boxes around components and save only one near the center
 		 *boxes drawn in output
@@ -225,7 +266,13 @@ void ReadVideo(char *vid_path)
 		for (int i = 0; i < len; i++)
 		{
 			struct Component *c = &components[i]; // get component from id
-                	DrawRectangle(frame_copy, 
+                
+			// check if component was previouly mreged
+			// yes : skip the component	
+			if (c -> id == -1)
+                                continue;
+
+			DrawRectangle(frame_copy, 
 					c -> box_origin_y, 
 					c -> box_origin_x, 
 					c -> height,
@@ -233,6 +280,7 @@ void ReadVideo(char *vid_path)
 					4, 
 					color);
 
+			/*save first component that reaches center of image*/
 			if (saved == 0 && 
 					c -> points -> size > 200 && 
 					abs((c -> box_origin_x + c -> width / 2) - W / 2) < 100)
@@ -244,6 +292,7 @@ void ReadVideo(char *vid_path)
 
 
 		/* write difference frame to output */
+		/*ie convect surface to frame*/
 		for (y=0 ; y<H; y++) for (x=0 ; x<W; x++)
 		{
 			pixel = get_pixel(frame_copy, x, y);
@@ -300,9 +349,6 @@ SDL_Surface *FrameDifference(SDL_Surface *img_1, SDL_Surface *img_2)
         Uint8 r_1, g_1, b_1;
         Uint8 r_2, g_2, b_2;
 
-	/*find the "center" of different pixels*/
-	float x_average = 0, y_average = 0;
-	int count = 0;
         int threshold = 70;
 
         for (int i = 0; i < img_1 -> w; i++)
@@ -322,9 +368,6 @@ SDL_Surface *FrameDifference(SDL_Surface *img_1, SDL_Surface *img_2)
                         if (d_Sq > threshold * threshold)
                         {
                                 put_pixel(sub, i, j, res_pixel);
-				x_average += i;
-				y_average += j;
-				count += 1;
                         }
 			else
 			{
@@ -333,13 +376,6 @@ SDL_Surface *FrameDifference(SDL_Surface *img_1, SDL_Surface *img_2)
 			}
                 }
         }
-
-	x_average = x_average / count;
-	y_average = y_average / count;
-
-
-//	if (y_average >= 0 && y_average < sub -> h && x_average >= 0 && x_average < sub -> w)
-//		DrawFillCircle(sub, (int) y_average, (int) x_average, 20, SDL_MapRGB(sub -> format, 0, 255, 0));
 
         return sub;
 }
