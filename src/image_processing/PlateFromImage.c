@@ -70,7 +70,7 @@ char *GetPlateFromImage(char *path, int angle)
 	for (int i = 0; i < (int) current_cluster -> size; i++)
 	{
 		c = &components[*(current_cluster -> data + i)]; // get component from id
-		DrawRectangle(res, c -> box_origin_y, c -> box_origin_x, c -> height,c ->  width, 5, color);
+		DrawRectangle(res, c -> box_origin_y, c -> box_origin_x, c -> height,c ->  width, 10, color);
 
 		/*build filename to save bitmap*/
 		char name[3];

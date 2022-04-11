@@ -126,11 +126,8 @@ void ReadVideo(char *vid_path)
     	int x, y, count;
     	int nbRead = 1;
 
-	struct Component null_c;
-        null_c.id = -1;
-	null_c.box_origin_x = -1;
-	null_c.box_origin_y = -1;
-	
+	/*
+	*/
 
     	Uint32 pixel;
     	Uint8 r, g, b;
@@ -222,8 +219,6 @@ void ReadVideo(char *vid_path)
 				DBL_MAX, 
 				1);
 
-		color = SDL_MapRGB(img -> format, 0, 255, 255);
-
 
 		/*loop through component array and check if overlap
 		 *if overlap : merge components and remove them
@@ -278,15 +273,17 @@ void ReadVideo(char *vid_path)
 					c -> height,
 					c ->  width, 
 					4, 
-					color);
+					SDL_MapRGB(frame_copy -> format, 0, 255, 0));
 
 			/*save first component that reaches center of image*/
-			if (saved == 0 && 
+			if (nbRead % 10 == 0 && saved < 20 && 
 					c -> points -> size > 200 && 
-					abs((c -> box_origin_x + c -> width / 2) - W / 2) < 100)
+					abs((c -> box_origin_x + c -> width / 2) - W / 2) < 300)
 			{
-				saved = 1;
-				SDL_SaveBMP(img, "mvnt.bmp");
+				saved += 1;
+				char *res_path;
+				asprintf(&res_path, "%s%i%s", "frames/", saved, ".bmp");
+				SDL_SaveBMP(img, res_path);
 			}
 		}
 
@@ -296,7 +293,7 @@ void ReadVideo(char *vid_path)
 		for (y=0 ; y<H; y++) for (x=0 ; x<W; x++)
 		{
 			pixel = get_pixel(frame_copy, x, y);
-			SDL_GetRGB(pixel , img -> format, &r, &g, &b);
+			SDL_GetRGB(pixel , frame_copy -> format, &r, &g, &b);
 			frame[y][x][0] = (unsigned char) r;
 		    	frame[y][x][1] = (unsigned char) g;
 			frame[y][x][2] = (unsigned char) b;
