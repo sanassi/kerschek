@@ -60,6 +60,94 @@ void GetVideoResolution(char *vid_path, int *height, int *width)
 	*height = (int) strtoul(token, NULL, 10);
 }
 
+// use mplayer to play video
+void PlayVid(char *path)
+{
+        int pid = fork();
+        fflush(stdout);
+        if (pid == 0)
+        {
+                execlp("mplayer", "mplayer", "-vfm", "ffmpeg", path, (char *) NULL);
+                exit(0);
+        }
+        else if (pid > 0)
+        {
+                wait(NULL);
+        }
+}
+
+int GetNbFrames(char *vid_path)
+{
+	int nbFrames = 0;
+
+        int BUF_SIZE = 10;
+
+        // use pipe to get resolutoin from stdout and store in string
+        // ffpropbe displays result in stdout
+        char res[BUF_SIZE];
+        int stdout_bk = 0;
+        int pipefd[2];
+        int e = pipe(pipefd);
+        if (e == -1)
+                printf("err");
+
+        dup2(pipefd[1], STDOUT_FILENO);
+        fflush(stdout);
+
+        // to get video resolution (WIDTHxHEIGHT)
+
+        // use fork because execlp stops program if 0 errors
+        int pid = fork();
+        if (pid == 0)
+        {
+		/*
+                execlp("ffprobe",
+                        "ffprobe",
+                        "-v",
+                        "error",
+                        "-select_streams",
+                        "v:0",
+                        "-show_entries",
+                        "stream=width,height",
+                        "-of",
+                        "default=nw=1:nk=1",
+                        vid_path,
+                        (char *) NULL);
+		*/
+
+		execlp("ffprobe",
+			"ffprobe",
+			"-v",
+			"error",
+			"-select_streams",
+			"v:0",
+			"-count_packets",
+			"-show_entries",
+			"stream=nb_read_packets",
+			"-of",
+			"csv=p=0",
+			vid_path,
+			(char *) NULL);
+
+                exit(EXIT_SUCCESS);
+        }
+        else if (pid > 0)
+        {
+                wait(NULL);
+        }
+
+        close(pipefd[1]);
+        dup2(stdout_bk, STDOUT_FILENO);
+
+
+        // save resolution in width and height param
+        ssize_t r = read(pipefd[0], res, BUF_SIZE);
+	nbFrames = (int) strtoul(res, NULL, 10);
+
+	return nbFrames;
+}
+
+
 // return string used as arg for popen()
 char *Input_CMD(char *vid_path)
 {
@@ -110,7 +198,7 @@ char *Output_CMD(char *vid_path, char *vid_output_path)
  *	5 - draw bouding box around components
  *	6 - 
  *
- * */
+ */
 
 void ReadVideo(char *vid_path)
 {
@@ -125,6 +213,7 @@ void ReadVideo(char *vid_path)
 
     	int x, y, count;
     	int nbRead = 1;
+	int frameRate = 5;
 
 	/*
 	*/
@@ -142,7 +231,6 @@ void ReadVideo(char *vid_path)
     	// use the first frame as background image
 	for (int i = 0; i < 1; i++)
 		count = fread(frame, 1, H*W*3, pipein);
-	//fseek(pipein, 0, SEEK_SET);
 
 	if (count == -1)
 		printf("err");
@@ -150,7 +238,8 @@ void ReadVideo(char *vid_path)
 	Uint8 color = SDL_MapRGB(background -> format, 0, 255, 0);
 
 	/*convert frame to sdl_surface (easier to use)*/
-    	for (int i = 0; i < H; i++)
+    	
+	for (int i = 0; i < H; i++)
     	{
     		for (int j = 0; j < W; j++)
 		{
@@ -161,11 +250,13 @@ void ReadVideo(char *vid_path)
 			put_pixel(background, j, i, pixel);
 		}
     	}
+	
 
-	Grayscale(background);
-    	SDL_SaveBMP(background, "back.bmp");
+	//Grayscale(background);
+    	//SDL_SaveBMP(background, "back.bmp");
 	prev = copy_image(background);
 	int saved = 0;
+
 
     	// Process video frames
     	while(1)
@@ -174,8 +265,8 @@ void ReadVideo(char *vid_path)
 		count = fread(frame, 1, H*W*3, pipein);
 		nbRead++;
 
-		/*read 1 frame skip 5*/
-		if (nbRead % 5 != 0)
+		/*read 1 frame skip frameRate frames*/
+		if (nbRead % frameRate != 0)
 			continue;
 
 		// If we didn't get a frame of video, we're probably at the end
@@ -211,10 +302,10 @@ void ReadVideo(char *vid_path)
 		int len;
 		struct Component *components = GetComponents(sub, 
 				&len, 
+				INT_MAX,  
 				INT_MAX, 
-				INT_MAX, 
-				30, 
-				30, 
+				20, 
+				20, 
 				85, 
 				DBL_MAX, 
 				1);

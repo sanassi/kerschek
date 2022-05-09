@@ -27,6 +27,8 @@ void SaveComponentToBMP_2(struct Component *c, char *name, int offset)
 
 	//SDL_SaveBMP(NearestNeighbourScale(img, 28, 28), name);
 
+	Dilation(img);
+
 	SDL_SaveBMP(img, name);
 	SDL_FreeSurface(img);
 }
@@ -197,7 +199,7 @@ struct Component *GetComponents(SDL_Surface *img,
 			{
 				struct Component *c = GetComponent(img, i, j);
 
-				// check component size and shape
+				// check component size
 				if (c -> points -> size > (size_t) min_size 
 					&& c -> height < max_h 
 					&& c -> height > min_h

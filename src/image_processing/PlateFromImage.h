@@ -29,4 +29,5 @@ char *GetPlateFromImage(char *path, int angle);
 
 int PlateIsOk(char *s);
 
+SDL_Surface *BuildImageRes(char *plate);
 #endif

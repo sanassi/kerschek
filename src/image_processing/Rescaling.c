@@ -32,3 +32,13 @@ SDL_Surface *NearestNeighbourScale(SDL_Surface *src, int newWidth, int newHeight
 	// idk why but code turns images blue
 	return res;
 }
+
+SDL_Surface *ResizeToFit(SDL_Surface *img, float maxHeight, float maxWidth)
+{
+	float scaleFactor =  maxHeight / img -> h;
+
+	if (maxWidth / img -> w < maxHeight / img -> h)
+		scaleFactor = maxWidth / img -> w;
+
+	return NearestNeighbourScale(img, img -> w * scaleFactor, img -> h * scaleFactor);
+}

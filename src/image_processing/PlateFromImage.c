@@ -56,9 +56,11 @@ char *GetPlateFromImage(char *path, int angle)
 
 	// ok values 1 2 3
 	struct vector *current_cluster = GetColinearComponents(components, &len, angle);
-	SortComponentVector(current_cluster, components, current_cluster -> size);
+	SortComponentVector(current_cluster, 
+			components, 
+			current_cluster -> size);
 
-	Uint8 color = SDL_MapRGB(img -> format, 255, 0, 0);
+	Uint8 color = SDL_MapRGB(res -> format, 255, 0, 0);
 	
 	struct Component *c;
 
@@ -70,7 +72,12 @@ char *GetPlateFromImage(char *path, int angle)
 	for (int i = 0; i < (int) current_cluster -> size; i++)
 	{
 		c = &components[*(current_cluster -> data + i)]; // get component from id
-		DrawRectangle(res, c -> box_origin_y, c -> box_origin_x, c -> height,c ->  width, 10, color);
+		DrawRectangle(res, 
+				c -> box_origin_y, 
+				c -> box_origin_x, 
+				c -> height, 
+				c ->  width, 
+				10, color);
 
 		/*build filename to save bitmap*/
 		char name[3];
@@ -83,13 +90,13 @@ char *GetPlateFromImage(char *path, int angle)
 
 		SaveComponentToBMP_2(c, res_path, 100);
 
-		/* use gocr to recog characters */
+		/* use gocr to detect characters */
 		// why fork() ? execlp stops the current process
 		int pid = fork();
 		fflush(stdout);
 		if (pid == 0)
 		{
-			execlp("gocr", "gocr", "-o",name, res_path, (char *) NULL);
+			execlp("gocr", "gocr", "-o", name, res_path, (char *) NULL);
 			exit(0);
 		}
 		else if (pid > 0)
@@ -99,7 +106,10 @@ char *GetPlateFromImage(char *path, int angle)
 		/*----------------------------------------*/
 	}
 
+
 	SDL_SaveBMP(res, "final.bmp");
+
+	/*-----------Reconstruction de la plaque----------------*/
 
 	/*read digits*/
 	char *plate = malloc(7 * sizeof(char));
@@ -118,7 +128,6 @@ char *GetPlateFromImage(char *path, int angle)
 
 	/*free*/
 	SDL_FreeSurface(img);
-	//SDL_FreeSurface(img_copy);
 	SDL_FreeSurface(res);
 
 	vector_free(current_cluster);
@@ -149,4 +158,71 @@ int PlateIsOk(char *s)
 	}
 
 	return 0;
+}
+
+SDL_Surface *BuildImageRes(char *plate)
+{
+	int digitHeight = 200;
+	int digitWidth = 100;
+
+	int offset_h = 20;
+	int offset_w = 70;
+
+	SDL_Surface *res = SDL_CreateRGBSurface(SDL_HWSURFACE, 
+			7 * digitWidth + 3 * offset_w, 
+			150, 32, 0, 0, 0, 0);
+
+	Uint32 whitePix = SDL_MapRGB(res -> format, 255, 255, 255);
+
+	for (int i = 0; i < res -> w; i++)
+	{
+		for (int j = 0; j < res -> h; j++)
+		{
+			put_pixel(res, i, j, whitePix);
+		}
+	}
+
+	int pos_x = offset_w;
+	int pos_y = offset_h;
+
+	for (int i = 0; i < 7; i++)
+	{
+		char *digitPath;
+
+		if (plate[i] == '_')
+		{
+			digitPath = "digits_to_print/under.bmp";
+		}
+
+		else
+		{
+			int size = asprintf(&digitPath, "%s%c%s", "digits_to_print/", plate[i], ".bmp");
+                	printf("%s\n", digitPath);
+                	if (size == -1)
+                        	printf("error : asprintf()");
+		}
+
+		/*
+                int size = asprintf(&digitPath, "%s%c%s", "digits_to_print/", plate[i], ".bmp");
+		printf("%s\n", digitPath);
+                if (size == -1)
+                        printf("error : asprintf()");
+		*/
+
+		SDL_Surface *digit = ResizeToFit(load_image(digitPath), digitWidth, digitHeight);
+
+		for (int j = 0; j < digit -> w; j++)
+		{
+			for (int k = 0; k < digit -> h; k++)
+			{
+				put_pixel(res, j + pos_x, k + pos_y, get_pixel(digit, j, k));
+			}
+		}
+
+		pos_x += digit -> w + offset_w;
+
+	}
+
+	return res;
+
 }

@@ -6,6 +6,9 @@
 #include <gtk/gtk.h>
 
 #include <SDL/SDL.h>
+#include <SDL/SDL_image.h>
 
-
+#include "../image_processing/SdlHelperFunctions.h"
+#include "../image_processing/Rescaling.h"
+#include "../image_processing/PlateFromImage.h"
 #endif

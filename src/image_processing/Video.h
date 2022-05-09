@@ -9,7 +9,12 @@
 #include "Drawing.h"
 #include "Component.h"
 
+// use mplayer to display videos
+void PlayVid(char *path);
+
 void ReadVideo(char *vid_path);
+
+int GetNbFrames(char *vid_path);
 
 int distSq(int x1, int y1, int z1, int x2, int y2, int z2);
 

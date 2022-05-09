@@ -9,4 +9,6 @@
 
 SDL_Surface *NearestNeighbourScale(SDL_Surface *src, int newWidth, int newHeight);
 
+SDL_Surface *ResizeToFit(SDL_Surface *img, float maxHeight, float maxWidth);
+
 #endif
