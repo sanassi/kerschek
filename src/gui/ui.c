@@ -2,6 +2,11 @@
 
 #include <gdk-pixbuf/gdk-pixbuf.h>
 
+typedef struct Entries
+{
+
+}
+
 typedef struct UserInterface
 {
 	GtkWindow *window;
@@ -59,9 +64,9 @@ void on_file_choose(GtkButton *button, gpointer user_data)
 		ui -> imageToProcess = img;
 	
 		/*Resize image if necessary*/
-		if (img -> h > 900 || img -> w > 900)
+		if (img -> h > 600 || img -> w > 600)
 		{
-			SDL_SaveBMP(ResizeToFit(img, 900, 900), "scaled.bmp");
+			SDL_SaveBMP(ResizeToFit(img, 600, 600), "scaled.bmp");
 			ui -> currentImgPath = "scaled.bmp";
 		}
 
@@ -81,7 +86,7 @@ void on_detect(GtkButton *button, gpointer user_data)
 	gchar *plate = GetPlateFromImage(ui -> sourceImgPath, 3);
 
 	/*Save the result image*/
-	ui -> resultImage = ResizeToFit(load_image("final.bmp"), 900, 900);
+	ui -> resultImage = ResizeToFit(load_image("final.bmp"), 600, 600);
 	SDL_SaveBMP(ui -> resultImage, "final_resized.bmp");
 
 	/*Set the text on the plate label*/
