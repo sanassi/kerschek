@@ -25,11 +25,15 @@ void SaveComponentToBMP_2(struct Component *c, char *name, int offset)
 		put_pixel(img, (y + offset / 2), x + (offset / 2), blackPixel);
 	}
 
+	SDL_Surface *tmp = ResizeToFit(img, 100, 100);
+	
+
 	//SDL_SaveBMP(NearestNeighbourScale(img, 28, 28), name);
 
-	Dilation(img);
+	Dilation(tmp);
 
-	SDL_SaveBMP(img, name);
+	SDL_SaveBMP(tmp, name);
+	SDL_FreeSurface(tmp);
 	SDL_FreeSurface(img);
 }
 
@@ -165,7 +169,7 @@ struct Component *GetComponent(SDL_Surface *img, int x, int y)
         c -> box_origin_x = c -> leftmost_x;
         c -> box_origin_y = c -> topmost_y;
 
-//	vector_free(q);
+	free(q);
 
 	return c;
 }

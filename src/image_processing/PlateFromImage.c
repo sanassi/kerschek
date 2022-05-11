@@ -69,15 +69,19 @@ char *GetPlateFromImage(char *path, int angle)
 	
 	/*extract the components on copy of img (not processed)*/
 	//PreProcess(img_copy, 3, 0, 0);
+
+
 	for (int i = 0; i < (int) current_cluster -> size; i++)
 	{
 		c = &components[*(current_cluster -> data + i)]; // get component from id
+		/*
 		DrawRectangle(res, 
 				c -> box_origin_y, 
 				c -> box_origin_x, 
 				c -> height, 
 				c ->  width, 
 				10, color);
+		*/
 
 		/*build filename to save bitmap*/
 		char name[3];
@@ -105,6 +109,44 @@ char *GetPlateFromImage(char *path, int angle)
 		}
 		/*----------------------------------------*/
 	}
+
+	/*draw the plate bounding box
+	 * TODO : clean the code :\
+	 * */
+
+	int plate_pos_x = components[*(current_cluster -> data)].box_origin_x;
+	int width = components[*(current_cluster -> data + current_cluster -> size - 1)].box_origin_x + 
+		components[*(current_cluster -> data + current_cluster -> size - 1)].width
+		- plate_pos_x;
+
+	int plate_pos_y;
+	int height;
+
+	if (components[*(current_cluster -> data + 0)].box_origin_y 
+			< components[*(current_cluster -> data + current_cluster -> size - 1)].box_origin_y)
+	{
+		plate_pos_y = components[*(current_cluster -> data + 0)].box_origin_y;
+		height = components[*(current_cluster -> data + current_cluster -> size - 1)].box_origin_y 
+			+ components[*(current_cluster -> data + current_cluster -> size - 1)].height
+			- components[*(current_cluster -> data + 0)].box_origin_y;
+	}
+	else
+	{
+		plate_pos_y = components[*(current_cluster -> data + current_cluster -> size - 1)].box_origin_y;
+		height = components[*(current_cluster -> data + 0)].box_origin_y 
+			+ components[*(current_cluster -> data + 0)].height
+			- components[*(current_cluster -> data + current_cluster -> size - 1)].box_origin_y;
+	}
+
+	
+	DrawRectangle(res,
+                                plate_pos_y,
+                                plate_pos_x,
+                                height,
+                                width,
+                                10, color);
+
+	/*------------------------------------------------------*/
 
 
 	SDL_SaveBMP(res, "final.bmp");
@@ -189,7 +231,7 @@ SDL_Surface *BuildImageRes(char *plate)
 	{
 		char *digitPath;
 
-		if (plate[i] == '_')
+		if (plate[i] == '_' || isalnum(plate[i]) == 0)
 		{
 			digitPath = "digits_to_print/under.bmp";
 		}
@@ -201,13 +243,6 @@ SDL_Surface *BuildImageRes(char *plate)
                 	if (size == -1)
                         	printf("error : asprintf()");
 		}
-
-		/*
-                int size = asprintf(&digitPath, "%s%c%s", "digits_to_print/", plate[i], ".bmp");
-		printf("%s\n", digitPath);
-                if (size == -1)
-                        printf("error : asprintf()");
-		*/
 
 		SDL_Surface *digit = ResizeToFit(load_image(digitPath), digitWidth, digitHeight);
 
@@ -223,6 +258,6 @@ SDL_Surface *BuildImageRes(char *plate)
 
 	}
 
-	return res;
+	return ResizeToFit(res, 5 * digitWidth, digitHeight);
 
 }

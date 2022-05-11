@@ -100,21 +100,6 @@ int GetNbFrames(char *vid_path)
         int pid = fork();
         if (pid == 0)
         {
-		/*
-                execlp("ffprobe",
-                        "ffprobe",
-                        "-v",
-                        "error",
-                        "-select_streams",
-                        "v:0",
-                        "-show_entries",
-                        "stream=width,height",
-                        "-of",
-                        "default=nw=1:nk=1",
-                        vid_path,
-                        (char *) NULL);
-		*/
-
 		execlp("ffprobe",
 			"ffprobe",
 			"-v",
@@ -200,6 +185,8 @@ char *Output_CMD(char *vid_path, char *vid_output_path)
  *
  */
 
+
+// problem : to slow bc convert 3d array to sdl surf
 void ReadVideo(char *vid_path)
 {
 	// Get Video Resolution
@@ -215,20 +202,18 @@ void ReadVideo(char *vid_path)
     	int nbRead = 1;
 	int frameRate = 5;
 
-	/*
-	*/
 
     	Uint32 pixel;
     	Uint8 r, g, b;
 	SDL_Surface *prev;
 
 	// Open an input pipe from ffmpeg and an output pipe to a second instance of ffmpeg
-
 	FILE *pipein = popen(Input_CMD(vid_path), "r");
         FILE *pipeout = popen(Output_CMD(vid_path, "output.mp4"), "w");
 
 
-    	// use the first frame as background image
+    	// get the first frame of the video
+	// then convert as sdl surface
 	for (int i = 0; i < 1; i++)
 		count = fread(frame, 1, H*W*3, pipein);
 
@@ -238,7 +223,6 @@ void ReadVideo(char *vid_path)
 	Uint8 color = SDL_MapRGB(background -> format, 0, 255, 0);
 
 	/*convert frame to sdl_surface (easier to use)*/
-    	
 	for (int i = 0; i < H; i++)
     	{
     		for (int j = 0; j < W; j++)
@@ -252,8 +236,6 @@ void ReadVideo(char *vid_path)
     	}
 	
 
-	//Grayscale(background);
-    	//SDL_SaveBMP(background, "back.bmp");
 	prev = copy_image(background);
 	int saved = 0;
 
@@ -276,7 +258,7 @@ void ReadVideo(char *vid_path)
 		// Process this frame
 
 		SDL_Surface *img = SDL_CreateRGBSurface(SDL_HWSURFACE, W, H, 32, 0, 0, 0, 0);
-		Grayscale(img);
+		//Grayscale(img);
 
 
 		// convert frame to sdl_surface
@@ -369,7 +351,7 @@ void ReadVideo(char *vid_path)
 			/*save first component that reaches center of image*/
 			if (nbRead % 10 == 0 && saved < 20 && 
 					c -> points -> size > 200 && 
-					abs((c -> box_origin_x + c -> width / 2) - W / 2) < 300)
+					abs((c -> box_origin_x + c -> width / 2) - W / 2) < 50)
 			{
 				saved += 1;
 				char *res_path;
