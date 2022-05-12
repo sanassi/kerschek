@@ -11,4 +11,7 @@
 #include "../image_processing/SdlHelperFunctions.h"
 #include "../image_processing/Rescaling.h"
 #include "../image_processing/PlateFromImage.h"
+
+int LaunchInterface();
+
 #endif
