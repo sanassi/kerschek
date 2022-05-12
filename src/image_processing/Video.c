@@ -127,6 +127,8 @@ int GetNbFrames(char *vid_path)
 
         // save resolution in width and height param
         ssize_t r = read(pipefd[0], res, BUF_SIZE);
+	if (r == -1)
+		return 0;
 	nbFrames = (int) strtoul(res, NULL, 10);
 
 	return nbFrames;
@@ -220,7 +222,6 @@ void ReadVideo(char *vid_path)
 	if (count == -1)
 		printf("err");
     	SDL_Surface *background = SDL_CreateRGBSurface(SDL_HWSURFACE, W, H, 32, 0, 0, 0, 0);
-	Uint8 color = SDL_MapRGB(background -> format, 0, 255, 0);
 
 	/*convert frame to sdl_surface (easier to use)*/
 	for (int i = 0; i < H; i++)
@@ -355,8 +356,9 @@ void ReadVideo(char *vid_path)
 			{
 				saved += 1;
 				char *res_path;
-				asprintf(&res_path, "%s%i%s", "frames/", saved, ".bmp");
-				SDL_SaveBMP(img, res_path);
+				int err = asprintf(&res_path, "%s%i%s", "frames/", saved, ".bmp");
+				if (err != -1)
+					SDL_SaveBMP(img, res_path);
 			}
 		}
 

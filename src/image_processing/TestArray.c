@@ -44,10 +44,9 @@ unsigned char GetValue(struct Array *arr, int i, int j, int k)
 /*
  *goal : use array as buffer to reda frames more efficiently
  * */
-
+/*
 int main()
 {
-	/*
 	struct Array *arr = malloc(sizeof(struct Array));
 	arr -> x = 5;
 	arr -> y = 5;
@@ -74,7 +73,6 @@ int main()
 		cpt++;
 		printf("\n");
 	}
-	*/
 
 	//
 	// Video processing example using FFmpeg
@@ -140,3 +138,4 @@ int main()
     	pclose(pipeout);
 	return EXIT_SUCCESS;
 }
+*/

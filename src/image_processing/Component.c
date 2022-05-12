@@ -284,7 +284,7 @@ struct vector *GetColinearComponents(struct Component *components, int *len, int
                                 double angle = AngleBetweenComponents(&components[i], &components[j], &components[k]);
 
 				double angle_2 =  AngleBetweenComponents_2(&components[i], &components[j], &components[k]);
-                                if (fabs(angle) < min_angle && fabs(angle_2) < 5)
+                                if (fabs(angle) <= min_angle && fabs(angle_2) < 5)
                                 {
                                         vector_push(current_cluster, components[k].id);
                                         //printf("%f\n", angle);

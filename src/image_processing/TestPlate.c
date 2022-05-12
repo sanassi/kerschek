@@ -41,8 +41,8 @@ void DrawGrid(SDL_Surface *img, int nb_vert, int nb_hor, Uint32 color)
 
 
 
-int main(int argc, char *argv[])
-{
+//int main(int argc, char *argv[])
+//{
 	/*
 	SDL_Surface *img = load_image(argv[1]);
 	PreProcess(img, 3, 0, 0);
@@ -60,7 +60,7 @@ int main(int argc, char *argv[])
 
 	*/
 
-	SDL_SaveBMP(BuildImageRes("B_46_HN"), "test_build_plate.bmp");
+	//SDL_SaveBMP(BuildImageRes("B_46_HN"), "test_build_plate.bmp");
 	
 
 	/*
@@ -149,5 +149,5 @@ int main(int argc, char *argv[])
 	SDL_SaveBMP(edges, "edges.bmp");
 	*/
 
-	return 0;
-}
+//	return 0;
+//}

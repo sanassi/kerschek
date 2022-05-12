@@ -25,9 +25,27 @@
 #include <sys/types.h>
 #include <sys/stat.h>
 
-char *GetPlateFromImage(char *path, int angle);
+typedef struct PlateDetectionArgs
+{
+        int angle;
+        int max_h, max_w;
+        int min_h, min_w;
+        int min_size;
+        float max_ratio, min_ratio;
+
+}PlateDetectionArgs;
+
+char *GetPlateFromImage(char *path, PlateDetectionArgs *args);
 
 int PlateIsOk(char *s);
 
 SDL_Surface *BuildImageRes(char *plate);
+
+/*
+         * struct Component *GetComponents(SDL_Surface *img,
+                int *len, int max_h, int max_w,
+                int min_h, int min_w, int min_size,
+                float max_ratio, float min_ratio)
+         */
+
 #endif

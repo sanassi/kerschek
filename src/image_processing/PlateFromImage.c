@@ -10,19 +10,21 @@ void MakeDir(char *dirName)
         }
 }
 
+
 // TODO : clean up
-char *GetPlateFromImage(char *path, int angle)
+char *GetPlateFromImage(char *path, PlateDetectionArgs *args)
 {
 	init_sdl();
 	SDL_Surface *img = load_image(path);
 	//SDL_Surface *img_copy = load_image(path);
 	SDL_Surface *res = load_image(path);
 
+	int angle = args -> angle;
 
-	int max_h = img -> h / 2, min_h = 30;
-        int max_w = img -> w / 3, min_w = 10;
-        int min_size = 10;
-        float max_ratio = 1, min_ratio = 0.2;
+	int max_h = args -> max_h, min_h = args -> min_h;
+        int max_w = args -> max_w, min_w = args -> min_w;
+        int min_size = args -> min_size;
+        float max_ratio = args -> max_ratio, min_ratio = args -> min_ratio;
 
 
         PreProcess(img, 3, 0, 0);
