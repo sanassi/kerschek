@@ -21,18 +21,18 @@
 
 #include "../image_processing/PlateFromImage.h"
 
+#include "../gui/ui.h"
+
 #define ANGLE 3
 
 int main(int argc, char *argv[])
 {
 	if (argc != 2)
-		return 1;
-	
-	char *plate = GetPlateFromImage(argv[1], ANGLE);
-	
-	printf("\n%s\n", plate);
+		printf("hoho");
+	if (!argv)
+		printf("hehe");
 
-	printf("Is Ok : %s", PlateIsOk(plate) == 0 ? "True" : "False");
+	int err = LaunchInterface();
 
-	return 0;
+	return err;
 }
