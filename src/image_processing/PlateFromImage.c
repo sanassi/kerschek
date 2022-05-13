@@ -16,7 +16,6 @@ char *GetPlateFromImage(char *path, PlateDetectionArgs *args)
 {
 	init_sdl();
 	SDL_Surface *img = load_image(path);
-	//SDL_Surface *img_copy = load_image(path);
 	SDL_Surface *res = load_image(path);
 
 	int angle = args -> angle;
@@ -147,6 +146,22 @@ char *GetPlateFromImage(char *path, PlateDetectionArgs *args)
                                 height,
                                 width,
                                 10, color);
+
+	SDL_Surface *plate_img = SDL_CreateRGBSurface(SDL_HWSURFACE, width, height, 32, 0, 0, 0, 0); 
+	SDL_Surface *img_copy = load_image(path);
+
+	for (int i = plate_pos_x; i < res -> w && i < plate_pos_x + width; i++)
+	{
+		for (int j = plate_pos_y; j < res -> h && j < plate_pos_y + height; j++)
+		{
+			put_pixel(plate_img, i - plate_pos_x, j - plate_pos_y, get_pixel(img, i, j));
+		}
+	}
+
+	SDL_SaveBMP(plate_img, "plate_img.bmp");
+	SDL_FreeSurface(plate_img);
+	SDL_FreeSurface(img_copy);
+
 
 	/*------------------------------------------------------*/
 
