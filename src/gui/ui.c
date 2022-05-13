@@ -1,4 +1,5 @@
 #include "ui.h"
+#include <dirent.h>
 
 #include <gdk-pixbuf/gdk-pixbuf.h>
 
@@ -39,6 +40,12 @@ typedef struct UserInterface
 
 	GtkButton *detectButton;
 	GtkButton *playVideoButton;
+	GtkButton *processVideoButton;
+	GtkButton *nextButton;
+        GtkButton *prevButton;
+	GtkButton *playResultVidButton;
+	int currentFrameNb;
+	int nbFrames;
 
 	GtkLabel *plateLabel;
 
@@ -98,6 +105,7 @@ void SetDetectionArgs(UserInterface *ui)
 	args -> max_ratio = 1;
 	args -> min_ratio = 0.2;
 
+	/*
 	if (*(e -> imgAngle_str) == '\0')
 	{
 		g_print("%s\n", e -> imgAngle_str);
@@ -113,6 +121,7 @@ void SetDetectionArgs(UserInterface *ui)
                 args -> min_w = e -> imgMinW;
 	if (*(e -> imgMaxW_str) != '\0')
                 args -> max_w = e -> imgMaxW;
+	*/
 }
 
 void Display(GtkImage *image, gchar *path)
@@ -189,12 +198,97 @@ void on_detect(GtkButton *button, gpointer user_data)
 	Display(ui -> image, "final_resized.bmp");
 }
 
+int GetNbFileInFolder(char *folder)
+{
+	int file_count = 0;
+	DIR * dirp;
+	struct dirent * entry;
+
+	dirp = opendir(folder); /* There should be error handling after this */
+	while ((entry = readdir(dirp)) != NULL) 
+	{
+    		if (entry->d_type == DT_REG) 
+		{ /* If the entry is a regular file */
+        	 	file_count++;
+		}
+	}
+	closedir(dirp);
+
+	return file_count;
+}
+
 void on_play_video(GtkButton *button, gpointer user_data)
 {
 	UserInterface *ui = user_data;
 
 	if (ui -> videoPath)
 		PlayVid(ui -> videoPath);
+
+}
+
+void on_process_video(GtkButton *button, gpointer user_data)
+{
+	UserInterface *ui = user_data;
+	if (ui -> videoPath)
+	{
+		Display(ui -> image, "video_process_icon_3.png");
+		g_print("\nmade it here\n");
+		ReadVideo(ui -> videoPath);
+
+        	ui -> nbFrames = GetNbFileInFolder("frames");
+	}
+}
+
+void on_prev_clicked(GtkButton *button, gpointer user_data)
+{
+	UserInterface *ui = user_data;
+
+	if (ui -> videoPath)
+	{
+		ui -> currentFrameNb -= 1;
+		if (ui -> currentFrameNb < 0)
+		{
+			ui -> currentFrameNb = ui -> nbFrames - 1;
+		}
+
+		char *res_path;
+		int err = asprintf(&res_path, "%s%i%s", "frames/", ui -> currentFrameNb, ".bmp");
+		g_print("%s\n", res_path);
+		Display(ui -> image, res_path);
+	}
+}
+
+void on_next_clicked(GtkButton *button, gpointer user_data)
+{
+	UserInterface *ui = user_data;
+
+	if (ui -> videoPath)
+        {
+		ui -> currentFrameNb += 1;
+		if (ui -> currentFrameNb >= ui -> nbFrames)
+		{
+			ui -> currentFrameNb = 0;
+		}
+		char *res_path;
+                int err = asprintf(&res_path, "%s%i%s", "frames/", ui -> currentFrameNb, ".bmp");
+		g_print("%s\n", res_path);
+		Display(ui -> image, res_path);
+        }
+}
+
+void on_play_result_video(GtkButton *button, gpointer user_data)
+{
+	UserInterface *ui = user_data;
+
+	/*if user loaded a video*/
+        if (ui -> videoPath)
+        {
+		/*check if output video file exists*/
+		if (access("output.mp4", F_OK) == 0) 
+		{
+			PlayVid("output.mp4");
+		}
+        }
 }
 
 /*---------------------------------------------*/
@@ -223,6 +317,11 @@ int LaunchInterface()
         GtkLabel *plateLabel = GTK_LABEL(gtk_builder_get_object(builder, "plate_label"));
         GtkImage *resPlateImg = GTK_IMAGE(gtk_builder_get_object(builder, "build_plate_image"));
 
+	GtkButton *processVideoButton = GTK_BUTTON(gtk_builder_get_object(builder, "process_video_button"));
+	GtkButton *nextButton = GTK_BUTTON(gtk_builder_get_object(builder, "next_button"));
+	GtkButton *prevButton = GTK_BUTTON(gtk_builder_get_object(builder, "prev_button"));
+	GtkButton *playResultVidButton = GTK_BUTTON(gtk_builder_get_object(builder, "play_result_video_button"));
+
 	GtkEntry *imgAngleEntry = GTK_ENTRY(gtk_builder_get_object(builder, "img_angle_entry"));
         GtkEntry *minSizeEntry = GTK_ENTRY(gtk_builder_get_object(builder, "img_size_entry"));
         GtkEntry *imgMin_h_entry = GTK_ENTRY(gtk_builder_get_object(builder, "img_min_h_entry"));
@@ -239,7 +338,13 @@ int LaunchInterface()
                 .detectButton = detectButton,
                 .plateLabel = plateLabel,
                 .resPlateImg = resPlateImg,
+
                 .playVideoButton = playVideoButton,
+		.processVideoButton = processVideoButton,
+		.prevButton = prevButton,
+		.nextButton = nextButton,
+		.playResultVidButton = playResultVidButton,
+		.currentFrameNb = 0,
 
 		.maxImgHeight = 600,
 		.maxImgWidth = 600,
@@ -271,8 +376,12 @@ int LaunchInterface()
         g_signal_connect(loadImgButton, "file-set", G_CALLBACK(on_file_choose), &ui);
         g_signal_connect(detectButton, "clicked", G_CALLBACK(on_detect), &ui);
         g_signal_connect(playVideoButton, "clicked", G_CALLBACK(on_play_video), &ui);
+	g_signal_connect(processVideoButton, "clicked", G_CALLBACK(on_process_video), &ui);
+	g_signal_connect(nextButton, "clicked", G_CALLBACK(on_next_clicked), &ui);
+	g_signal_connect(prevButton, "clicked", G_CALLBACK(on_prev_clicked), &ui);
+       	g_signal_connect(playResultVidButton, "clicked", G_CALLBACK(on_play_result_video), &ui);
 
-        gtk_main();
+	gtk_main();
 
 	return 0;
 }
