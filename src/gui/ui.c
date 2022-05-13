@@ -63,6 +63,13 @@ typedef struct UserInterface
 	/*arguments for img plate detection*/
 	PlateDetectionArgs args;
 
+    GtkButton *new;
+
+  //car brand
+  GtkMenuItem *renaultclio;
+  GtkMenuItem *peugeot3008;
+  GtkMenuItem *citroenDS7;
+
 }UserInterface;
 
 /*----------------functions---------------*/
@@ -128,6 +135,15 @@ void Display(GtkImage *image, gchar *path)
 {
 	gtk_image_set_from_file(image, path);
 }
+
+void on_new_activate(GtkButton *button, gpointer user_data)
+{
+  UserInterface *ui = user_data;
+  Display(ui->image, "logo.png");
+  Display(ui->resPlateImg, NULL);
+  gtk_label_set_text(ui -> plateLabel, NULL);
+}
+
 
 /*2 usage : choose video or image*/
 void on_file_choose(GtkButton *button, gpointer user_data)
@@ -291,6 +307,24 @@ void on_play_result_video(GtkButton *button, gpointer user_data)
         }
 }
 
+void on_brand_renaultclio(GtkMenuItem menu, gpointer user_data)
+{
+  UserInterface *ui = user_data;
+  Display(ui -> image, "brand/Renault_clio.png");
+}
+
+void on_brand_peugeot3008(GtkMenuItem menu, gpointer user_data)
+{
+  UserInterface *ui = user_data;
+  Display(ui -> image, "brand/Peugeot_3008.png");
+}
+
+void on_brand_citroenDS7(GtkMenuItem menu, gpointer user_data)
+{
+  UserInterface *ui = user_data;
+  Display(ui -> image, "brand/Citroen_DS7.png");
+}
+
 /*---------------------------------------------*/
 
 int LaunchInterface()
@@ -307,14 +341,22 @@ int LaunchInterface()
                 return 1;
         }
         gtk_builder_connect_signals(builder, NULL);
-
-
+	
+	
         GtkWindow *window = GTK_WINDOW(gtk_builder_get_object(builder, "main_window"));
+	gtk_window_set_title(GTK_WINDOW(window), "Project Kerscheck");
         GtkImage *image = GTK_IMAGE(gtk_builder_get_object(builder, "image"));
         GtkWidget *loadImgButton = GTK_WIDGET(gtk_builder_get_object(builder, "load_image_button"));
         GtkButton *detectButton = GTK_BUTTON(gtk_builder_get_object(builder, "detect_button"));
         GtkButton *playVideoButton = GTK_BUTTON(gtk_builder_get_object(builder, "play_video_button"));
-        GtkLabel *plateLabel = GTK_LABEL(gtk_builder_get_object(builder, "plate_label"));
+	GtkButton *new = GTK_BUTTON(gtk_builder_get_object(builder, "new"));
+	
+	//car brand
+	GtkMenuItem *renaultclio = GTK_MENU_ITEM(gtk_builder_get_object(builder, "renaultclio"));
+	GtkButton *peugeot3008 = GTK_BUTTON(gtk_builder_get_object(builder, "peugeot3008"));
+	GtkButton *citroenDS7 = GTK_BUTTON(gtk_builder_get_object(builder, "citroenDS7"));
+
+	GtkLabel *plateLabel = GTK_LABEL(gtk_builder_get_object(builder, "plate_label"));
         GtkImage *resPlateImg = GTK_IMAGE(gtk_builder_get_object(builder, "build_plate_image"));
 
 	GtkButton *processVideoButton = GTK_BUTTON(gtk_builder_get_object(builder, "process_video_button"));
@@ -380,6 +422,12 @@ int LaunchInterface()
 	g_signal_connect(nextButton, "clicked", G_CALLBACK(on_next_clicked), &ui);
 	g_signal_connect(prevButton, "clicked", G_CALLBACK(on_prev_clicked), &ui);
        	g_signal_connect(playResultVidButton, "clicked", G_CALLBACK(on_play_result_video), &ui);
+	g_signal_connect(new, "activate", G_CALLBACK(on_new_activate), &ui);
+
+	//car brand
+	g_signal_connect(renaultclio, "activate", G_CALLBACK(on_brand_renaultclio), &ui);
+	g_signal_connect(peugeot3008, "activate", G_CALLBACK(on_brand_peugeot3008), &ui);
+	g_signal_connect(citroenDS7, "activate", G_CALLBACK(on_brand_citroenDS7), &ui);
 
 	gtk_main();
 
