@@ -63,8 +63,12 @@ typedef struct UserInterface
 	/*arguments for img plate detection*/
 	PlateDetectionArgs args;
 
-  GtkButton *renaultclio;
-  GtkButton *new;
+    GtkButton *new;
+
+  //car brand
+  GtkMenuItem *renaultclio;
+  GtkMenuItem *peugeot3008;
+  GtkMenuItem *citroenDS7;
 
 }UserInterface;
 
@@ -303,13 +307,23 @@ void on_play_result_video(GtkButton *button, gpointer user_data)
         }
 }
 
-void on_brand_renaultclio(GtkButton *button, gpointer user_data)
+void on_brand_renaultclio(GtkMenuItem menu, gpointer user_data)
 {
   UserInterface *ui = user_data;
-  g_print("enter\n");
   Display(ui -> image, "brand/Renault_clio.png");
-  g_print("end\n");
-} 
+}
+
+void on_brand_peugeot3008(GtkMenuItem menu, gpointer user_data)
+{
+  UserInterface *ui = user_data;
+  Display(ui -> image, "brand/Peugeot_3008.png");
+}
+
+void on_brand_citroenDS7(GtkMenuItem menu, gpointer user_data)
+{
+  UserInterface *ui = user_data;
+  Display(ui -> image, "brand/Citroen_DS7.png");
+}
 
 /*---------------------------------------------*/
 
@@ -335,8 +349,12 @@ int LaunchInterface()
         GtkWidget *loadImgButton = GTK_WIDGET(gtk_builder_get_object(builder, "load_image_button"));
         GtkButton *detectButton = GTK_BUTTON(gtk_builder_get_object(builder, "detect_button"));
         GtkButton *playVideoButton = GTK_BUTTON(gtk_builder_get_object(builder, "play_video_button"));
-	GtkButton *renaultclio = GTK_BUTTON(gtk_builder_get_object(builder, "renaultclio"));
 	GtkButton *new = GTK_BUTTON(gtk_builder_get_object(builder, "new"));
+	
+	//car brand
+	GtkMenuItem *renaultclio = GTK_MENU_ITEM(gtk_builder_get_object(builder, "renaultclio"));
+	GtkButton *peugeot3008 = GTK_BUTTON(gtk_builder_get_object(builder, "peugeot3008"));
+	GtkButton *citroenDS7 = GTK_BUTTON(gtk_builder_get_object(builder, "citroenDS7"));
 
 	GtkLabel *plateLabel = GTK_LABEL(gtk_builder_get_object(builder, "plate_label"));
         GtkImage *resPlateImg = GTK_IMAGE(gtk_builder_get_object(builder, "build_plate_image"));
@@ -405,7 +423,11 @@ int LaunchInterface()
 	g_signal_connect(prevButton, "clicked", G_CALLBACK(on_prev_clicked), &ui);
        	g_signal_connect(playResultVidButton, "clicked", G_CALLBACK(on_play_result_video), &ui);
 	g_signal_connect(new, "activate", G_CALLBACK(on_new_activate), &ui);
+
+	//car brand
 	g_signal_connect(renaultclio, "activate", G_CALLBACK(on_brand_renaultclio), &ui);
+	g_signal_connect(peugeot3008, "activate", G_CALLBACK(on_brand_peugeot3008), &ui);
+	g_signal_connect(citroenDS7, "activate", G_CALLBACK(on_brand_citroenDS7), &ui);
 
 	gtk_main();
 
