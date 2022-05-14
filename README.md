@@ -39,3 +39,4 @@ $ ./kerschek
    [Mplayer]: <https://mplayerhq.hu/>
    [Gocr]: <http://jocr.sourceforge.net/>
    [Simple DirectMedia Layer]: <https://www.libsdl.org/>
+
