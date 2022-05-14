@@ -12,7 +12,7 @@
 #include "../image_processing/SdlHelperFunctions.h"
 #include "../image_processing/Rescaling.h"
 #include "../image_processing/PlateFromImage.h"
-
+#include "../image_processing/Video.h"
 int LaunchInterface();
 
 #endif

@@ -63,12 +63,14 @@ typedef struct UserInterface
 	/*arguments for img plate detection*/
 	PlateDetectionArgs args;
 
-    GtkButton *new;
+	/*modifications by vincent*/
+    	GtkButton *new;
 
-  //car brand
-  GtkMenuItem *renaultclio;
-  GtkMenuItem *peugeot3008;
-  GtkMenuItem *citroenDS7;
+	
+  	//car brand
+  	GtkMenuItem *renaultclio;
+  	GtkMenuItem *peugeot3008;
+  	GtkMenuItem *citroenDS7;
 
 }UserInterface;
 
@@ -136,12 +138,13 @@ void Display(GtkImage *image, gchar *path)
 	gtk_image_set_from_file(image, path);
 }
 
+/*added by vincent*/
 void on_new_activate(GtkButton *button, gpointer user_data)
 {
-  UserInterface *ui = user_data;
-  Display(ui->image, "logo.png");
-  Display(ui->resPlateImg, NULL);
-  gtk_label_set_text(ui -> plateLabel, NULL);
+  	UserInterface *ui = user_data;
+ 	Display(ui->image, "logo.png");
+  	Display(ui->resPlateImg, NULL);
+  	gtk_label_set_text(ui -> plateLabel, NULL);
 }
 
 
@@ -307,23 +310,25 @@ void on_play_result_video(GtkButton *button, gpointer user_data)
         }
 }
 
+/*added by vincent*/
 void on_brand_renaultclio(GtkMenuItem menu, gpointer user_data)
 {
-  UserInterface *ui = user_data;
-  Display(ui -> image, "brand/Renault_clio.png");
+  	UserInterface *ui = user_data;
+  	Display(ui -> image, "brand/Renault_clio.png");
 }
 
 void on_brand_peugeot3008(GtkMenuItem menu, gpointer user_data)
 {
-  UserInterface *ui = user_data;
-  Display(ui -> image, "brand/Peugeot_3008.png");
+	UserInterface *ui = user_data;
+  	Display(ui -> image, "brand/Peugeot_3008.png");
 }
 
 void on_brand_citroenDS7(GtkMenuItem menu, gpointer user_data)
 {
-  UserInterface *ui = user_data;
-  Display(ui -> image, "brand/Citroen_DS7.png");
+	UserInterface *ui = user_data;
+  	Display(ui -> image, "brand/Citroen_DS7.png");
 }
+/**/
 
 /*---------------------------------------------*/
 
@@ -351,10 +356,12 @@ int LaunchInterface()
         GtkButton *playVideoButton = GTK_BUTTON(gtk_builder_get_object(builder, "play_video_button"));
 	GtkButton *new = GTK_BUTTON(gtk_builder_get_object(builder, "new"));
 	
-	//car brand
+	//car brand : vincent
 	GtkMenuItem *renaultclio = GTK_MENU_ITEM(gtk_builder_get_object(builder, "renaultclio"));
 	GtkButton *peugeot3008 = GTK_BUTTON(gtk_builder_get_object(builder, "peugeot3008"));
 	GtkButton *citroenDS7 = GTK_BUTTON(gtk_builder_get_object(builder, "citroenDS7"));
+	//
+	
 
 	GtkLabel *plateLabel = GTK_LABEL(gtk_builder_get_object(builder, "plate_label"));
         GtkImage *resPlateImg = GTK_IMAGE(gtk_builder_get_object(builder, "build_plate_image"));
