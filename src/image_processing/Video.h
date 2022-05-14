@@ -1,5 +1,9 @@
-#ifndef VIDEO_H
-#define VIDEO_H
+#ifndef VIDEO_H_
+#define VIDEO_H_
+
+#ifndef _GNU_SOURCE
+#define _GNU_SOURCE
+#endif
 
 #include <stdio.h>
 #include <stdlib.h>
@@ -8,6 +12,14 @@
 #include <string.h>
 #include "Drawing.h"
 #include "Component.h"
+
+#include "PlateFromImage.h"
+
+#include <sys/wait.h>
+#include <sys/types.h>
+#include <sys/stat.h>
+#include <fcntl.h>
+
 
 // use mplayer to display videos
 void PlayVid(char *path);

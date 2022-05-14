@@ -1,5 +1,9 @@
-#ifndef PLATE_FROM_IMAGE_
-#define PLATE_FROM_IMAGE_
+#ifndef PLATE_FROM_IMAGE_H_
+#define PLATE_FROM_IMAGE_H_
+
+#ifndef _GNU_SOURCE
+#define _GNU_SOURCE
+#endif
 
 #include <stdio.h>
 #include <stdlib.h>
@@ -19,7 +23,7 @@
 #include "Morph.h"
 #include <unistd.h>
 #include <sys/wait.h>
-#include "Video.h"
+//#include "Video.h"
 
 #include <sys/wait.h>
 #include <sys/types.h>
@@ -48,4 +52,5 @@ SDL_Surface *BuildImageRes(char *plate);
                 float max_ratio, float min_ratio)
          */
 
+void MakeDir(char *dirName);
 #endif

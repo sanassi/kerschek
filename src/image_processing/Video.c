@@ -213,6 +213,7 @@ void ReadVideo(char *vid_path)
 	FILE *pipein = popen(Input_CMD(vid_path), "r");
         FILE *pipeout = popen(Output_CMD(vid_path, "output.mp4"), "w");
 
+	MakeDir("frames");
 
     	// get the first frame of the video
 	// then convert as sdl surface
@@ -326,8 +327,6 @@ void ReadVideo(char *vid_path)
 			}
 		}
 
-		// pb
-		//len = l;
 
 		/*draw bounding boxes around components and save only one near the center
 		 *boxes drawn in output
