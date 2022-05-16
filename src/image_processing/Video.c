@@ -351,13 +351,14 @@ void ReadVideo(char *vid_path)
 			/*save first component that reaches center of image*/
 			if (nbRead % 10 == 0 && saved < 20 && 
 					c -> points -> size > 200 && 
-					abs((c -> box_origin_x + c -> width / 2) - W / 2) < 100)
+					abs((c -> box_origin_x + c -> width / 2) - W / 2) < 100 &&
+					abs((c -> box_origin_y + c -> height / 2) - H / 2) < 100)
 			{
 				//saved += 1;
 				char *res_path;
 				int err = asprintf(&res_path, "%s%i%s", "frames/", saved, ".bmp");
 				if (err != -1)
-					SDL_SaveBMP(img, res_path);
+					SDL_SaveBMP(frame_copy, res_path);//img
 				saved += 1;
 			}
 		}

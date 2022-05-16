@@ -9,11 +9,11 @@
 #include "PreProcessing.h"
 #include "SdlHelperFunctions.h"
 #include "Rescaling.h"
-#include "Floodfill.h"
+//#include "Floodfill.h"
 #include "Morph.h"
 #include "Drawing.h"
 #include "Vector.h"
-#include "Hough.h"
+//#include "Hough.h"
 #include <string.h>
 #include <math.h>
 

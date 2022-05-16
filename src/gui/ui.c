@@ -102,7 +102,7 @@ void GetEntriesText(Entries *e)
 void SetDetectionArgs(UserInterface *ui)
 {
 	PlateDetectionArgs *args = &ui -> args;
-	Entries *e = &(ui -> entries);
+	//Entries *e = &(ui -> entries);
 
 
 	args -> angle = 3;
@@ -142,6 +142,10 @@ void Display(GtkImage *image, gchar *path)
 void on_new_activate(GtkButton *button, gpointer user_data)
 {
   	UserInterface *ui = user_data;
+
+	if (!button)
+                g_print("error : new act button gone !!!!");
+
  	Display(ui->image, "logo.png");
   	Display(ui->resPlateImg, NULL);
   	gtk_label_set_text(ui -> plateLabel, NULL);
@@ -189,6 +193,9 @@ void on_file_choose(GtkButton *button, gpointer user_data)
 void on_detect(GtkButton *button, gpointer user_data)
 {
 	UserInterface *ui = user_data;
+
+	if (!button)
+                g_print("error : detect button gone !!!!");
 
 	GetEntriesText(&(ui -> entries));
 	SetDetectionArgs(ui);
@@ -240,6 +247,9 @@ void on_play_video(GtkButton *button, gpointer user_data)
 {
 	UserInterface *ui = user_data;
 
+	if (!button)
+                g_print("error : play vid button gone !!!!");
+
 	if (ui -> videoPath)
 		PlayVid(ui -> videoPath);
 
@@ -248,6 +258,10 @@ void on_play_video(GtkButton *button, gpointer user_data)
 void on_process_video(GtkButton *button, gpointer user_data)
 {
 	UserInterface *ui = user_data;
+
+	if (!button)
+                g_print("error : process button gone !!!!");
+
 	if (ui -> videoPath)
 	{
 		Display(ui -> image, "video_process_icon_3.png");
@@ -262,6 +276,9 @@ void on_prev_clicked(GtkButton *button, gpointer user_data)
 {
 	UserInterface *ui = user_data;
 
+	if (!button)
+                g_print("error : prev button gone !!!!");
+
 	if (ui -> videoPath)
 	{
 		ui -> currentFrameNb -= 1;
@@ -272,6 +289,8 @@ void on_prev_clicked(GtkButton *button, gpointer user_data)
 
 		char *res_path;
 		int err = asprintf(&res_path, "%s%i%s", "frames/", ui -> currentFrameNb, ".bmp");
+		if (err == -1)
+			errx(1, "on_prev_clicked() : asprintf");
 		g_print("%s\n", res_path);
 		Display(ui -> image, res_path);
 	}
@@ -280,6 +299,9 @@ void on_prev_clicked(GtkButton *button, gpointer user_data)
 void on_next_clicked(GtkButton *button, gpointer user_data)
 {
 	UserInterface *ui = user_data;
+
+	if (!button)
+		g_print("error : next button gone !!!!");
 
 	if (ui -> videoPath)
         {
@@ -290,6 +312,8 @@ void on_next_clicked(GtkButton *button, gpointer user_data)
 		}
 		char *res_path;
                 int err = asprintf(&res_path, "%s%i%s", "frames/", ui -> currentFrameNb, ".bmp");
+		if (err == -1)
+                        errx(1, "on_next_clicked() : asprintf");
 		g_print("%s\n", res_path);
 		Display(ui -> image, res_path);
         }
@@ -298,6 +322,9 @@ void on_next_clicked(GtkButton *button, gpointer user_data)
 void on_play_result_video(GtkButton *button, gpointer user_data)
 {
 	UserInterface *ui = user_data;
+
+	if (!button)
+                g_print("error : play button gone !!!!");
 
 	/*if user loaded a video*/
         if (ui -> videoPath)
@@ -310,7 +337,25 @@ void on_play_result_video(GtkButton *button, gpointer user_data)
         }
 }
 
+void on_quit(gpointer user_data)
+{
+	UserInterface *ui = user_data;
+
+	char to_rmv[20][30] = {"res.bmp", "scaled.bmp", "test.bmp",
+				"plate_img.bmp", "final_resized.bmp",
+				"0", "1", "2", "3", "4", "5", "6", 
+				"output.mp4", "test_build_plate.bmp", 
+				"final.bmp", "\0"};
+
+	for (int i = 0; strcmp("\0", to_rmv[i]); i++)
+		remove(to_rmv[i]);
+
+	gtk_main_quit();
+	gtk_widget_destroy(GTK_WIDGET(ui -> window));
+}
+
 /*added by vincent*/
+/*
 void on_brand_renaultclio(GtkMenuItem menu, gpointer user_data)
 {
   	UserInterface *ui = user_data;
@@ -328,6 +373,7 @@ void on_brand_citroenDS7(GtkMenuItem menu, gpointer user_data)
 	UserInterface *ui = user_data;
   	Display(ui -> image, "brand/Citroen_DS7.png");
 }
+*/
 /**/
 
 /*---------------------------------------------*/
@@ -357,9 +403,9 @@ int LaunchInterface()
 	GtkButton *new = GTK_BUTTON(gtk_builder_get_object(builder, "new"));
 	
 	//car brand : vincent
-	GtkMenuItem *renaultclio = GTK_MENU_ITEM(gtk_builder_get_object(builder, "renaultclio"));
-	GtkButton *peugeot3008 = GTK_BUTTON(gtk_builder_get_object(builder, "peugeot3008"));
-	GtkButton *citroenDS7 = GTK_BUTTON(gtk_builder_get_object(builder, "citroenDS7"));
+	//GtkMenuItem *renaultclio = GTK_MENU_ITEM(gtk_builder_get_object(builder, "renaultclio"));
+	//GtkButton *peugeot3008 = GTK_BUTTON(gtk_builder_get_object(builder, "peugeot3008"));
+	//GtkButton *citroenDS7 = GTK_BUTTON(gtk_builder_get_object(builder, "citroenDS7"));
 	//
 	
 
@@ -421,7 +467,7 @@ int LaunchInterface()
         };
 
 
-        g_signal_connect(window, "destroy", G_CALLBACK(gtk_main_quit), NULL);
+        g_signal_connect(window, "destroy", G_CALLBACK(on_quit), NULL);
         g_signal_connect(loadImgButton, "file-set", G_CALLBACK(on_file_choose), &ui);
         g_signal_connect(detectButton, "clicked", G_CALLBACK(on_detect), &ui);
         g_signal_connect(playVideoButton, "clicked", G_CALLBACK(on_play_video), &ui);
@@ -432,17 +478,20 @@ int LaunchInterface()
 	g_signal_connect(new, "activate", G_CALLBACK(on_new_activate), &ui);
 
 	//car brand
-	g_signal_connect(renaultclio, "activate", G_CALLBACK(on_brand_renaultclio), &ui);
-	g_signal_connect(peugeot3008, "activate", G_CALLBACK(on_brand_peugeot3008), &ui);
-	g_signal_connect(citroenDS7, "activate", G_CALLBACK(on_brand_citroenDS7), &ui);
+	//g_signal_connect(renaultclio, "activate", G_CALLBACK(on_brand_renaultclio), &ui);
+	//g_signal_connect(peugeot3008, "activate", G_CALLBACK(on_brand_peugeot3008), &ui);
+	//g_signal_connect(citroenDS7, "activate", G_CALLBACK(on_brand_citroenDS7), &ui);
 
 	gtk_main();
 
 	return 0;
 }
+
+/*
 int main()
 {
 	int err = LaunchInterface();
 
 	return err;
 }
+*/

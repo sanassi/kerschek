@@ -5,12 +5,12 @@
 #include "PreProcessing.h"
 #include "SdlHelperFunctions.h" 
 #include "Rescaling.h"
-#include "Floodfill.h"
+//#include "Floodfill.h"
 #include "Drawing.h"
 #include "Component.h"
 #include <string.h>
-#include "ArrayConversion.h"
-#include "Hough.h"
+//#include "ArrayConversion.h"
+//#include "Hough.h"
 #include <math.h>
 #include "Vector.h"
 #include "Morph.h"
