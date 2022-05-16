@@ -1,5 +1,5 @@
 # Kerschek
-## _License Plate Detector, A Good One !_
+## _License Plate Detector, A Nice One !_
 
 Kerschek is a fast and robust C application to detect french license plates in images.
 
