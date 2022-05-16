@@ -10,11 +10,11 @@
 #include "../image_processing/PreProcessing.h"
 #include "../image_processing/SdlHelperFunctions.h" 
 #include "../image_processing/Rescaling.h"
-#include "../image_processing/Floodfill.h"
+//#include "../image_processing/Floodfill.h"
 #include "../image_processing/Drawing.h"
 #include "../image_processing/Component.h"
-#include "../image_processing/ArrayConversion.h"
-#include "../image_processing/Hough.h"
+//#include "../image_processing/ArrayConversion.h"
+//#include "../image_processing/Hough.h"
 #include "../image_processing/Vector.h"
 #include "../image_processing/Morph.h"
 #include "../image_processing/Video.h"
@@ -32,6 +32,8 @@ int main(int argc, char *argv[])
 	if (!argv)
 		printf("hehe");
 
+	MakeDir("frames");
+	MakeDir("components");
 	int err = LaunchInterface();
 
 	return err;
