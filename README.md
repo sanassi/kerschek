@@ -20,8 +20,6 @@ Kersheck is developped under _Linux_, and  uses a few softwares to make the plat
 ## Installation
 Kerschek requires [Make](https://www.gnu.org/software/make/) to run.
 ```bash
-#Go to the root of the repository
-$ cd projet_s4_epita
 
 #Build the project
 $ make kerschek
