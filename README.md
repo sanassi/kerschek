@@ -6,7 +6,7 @@ Kerschek is a C application to detect french license plates in images.
 ## Features
 
 - Load Image and detect License Plate
-- Load Video and perform Motion Detection
+- Load Video and perform Motion Detection (not done yet)
 
 ## Requirements
 
